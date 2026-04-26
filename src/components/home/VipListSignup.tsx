@@ -2,13 +2,17 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Bell, CheckCircle, Mail } from "lucide-react";
+import { Bell, CheckCircle, Mail, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { trackFormSubmit } from "@/lib/tracking";
 import { notifyCrm } from "@/lib/notifyCrm";
+import { useCrmIdentity } from "@/hooks/useCrmIdentity";
+
+const VIP_TAGS = new Set(["vip", "vip_approved", "vip_member"]);
+const VIP_STAGES = new Set(["vip", "customer"]);
 
 const schema = z.object({
   email: z.string().email("Please enter a valid email").max(255),
@@ -20,6 +24,14 @@ export function VipListSignup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
+  const { identity } = useCrmIdentity();
+
+  const isAlreadyVip =
+    !!identity?.known &&
+    (
+      (identity.tags ?? []).some((t) => VIP_TAGS.has(t)) ||
+      (identity.lifecycle_stage ? VIP_STAGES.has(identity.lifecycle_stage) : false)
+    );
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -83,7 +95,21 @@ export function VipListSignup() {
             </div>
 
             <div>
-              {!isSubmitted ? (
+              {isAlreadyVip ? (
+                <div className="flex items-start gap-3 p-5 rounded-xl bg-gradient-to-br from-primary/10 to-background border-2 border-primary/40 shadow-sm">
+                  <Sparkles className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-foreground mb-1">
+                      You're already on the VIP list ✨
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {identity?.assigned_agent
+                        ? `${identity.assigned_agent.name.split(" ")[0]} sends you new launches the moment they open. Check your inbox for the latest.`
+                        : "You get new launches first. Check your inbox for the latest releases."}
+                    </p>
+                  </div>
+                </div>
+              ) : !isSubmitted ? (
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

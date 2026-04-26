@@ -37,6 +37,7 @@ import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
 import { LpLeadForm } from "@/components/lp/LpLeadForm";
 import { useAppSetting } from "@/hooks/useAppSetting";
 import { generateProjectFAQs } from "@/lib/seoFaq";
+import { setCurrentPageContext, clearCurrentPageContext } from "@/lib/crm/pageContext";
 
 type Project = {
   id: string;
@@ -126,6 +127,17 @@ export default function LpProjectPage() {
       project_name: project.name,
       lead_source: searchParams.get("utm_source") || "direct",
     });
+
+    // Register page context for CRM presence broadcasts
+    setCurrentPageContext({
+      project_id: project.id,
+      project_name: project.name,
+      project_slug: project.slug,
+      city: project.city,
+      neighborhood: project.neighborhood ?? undefined,
+      page_type: "lp_project",
+    });
+    return () => clearCurrentPageContext();
   }, [project, searchParams]);
 
   // ---------- derived data ----------

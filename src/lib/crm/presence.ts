@@ -10,6 +10,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { getPresaleUserId } from "@/lib/tracking/behaviorBuffer";
+import { getCurrentPageContext } from "@/lib/crm/pageContext";
 
 const CHANNEL_NAME = "crm:lead-activity";
 
@@ -63,6 +64,7 @@ export function broadcastPresence(
       event,
       payload: {
         ...payload,
+        ...getCurrentPageContext(),
         presale_user_id: getPresaleUserId(),
         email: getEmail(),
         page_url: window.location.href,

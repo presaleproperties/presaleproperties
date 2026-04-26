@@ -36,6 +36,8 @@ import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
 import { trackFloorplanView, trackFloorplanDownload, trackCTAClick } from "@/lib/tracking";
 import { MetaEvents, MetaCustomEvents } from "@/components/tracking/MetaPixel";
 import { ExpertAdvisoryCard } from "@/components/listings/ExpertAdvisoryCard";
+import { AssignedAgentCard } from "@/components/crm/AssignedAgentCard";
+import { setCurrentPageContext, clearCurrentPageContext } from "@/lib/crm/pageContext";
 import { MapPin, Calendar, Building2, DollarSign, Download, ChevronLeft, Loader2, Phone, CheckCircle, Home, Layers, Star, Share2, CalendarCheck, Eye, Gift } from "lucide-react";
 type Project = {
   id: string;
@@ -201,6 +203,21 @@ export default function PresaleProjectDetail() {
       fetchProject();
     }
   }, [actualSlug, previewToken]);
+
+  // Register page context for CRM presence broadcasts so the dashboard
+  // shows "Visitor on <project name>" instead of a generic page_view.
+  useEffect(() => {
+    if (!project) return;
+    setCurrentPageContext({
+      project_id: project.id,
+      project_name: project.name,
+      project_slug: project.slug,
+      city: project.city,
+      neighborhood: project.neighborhood ?? undefined,
+      page_type: "project_detail",
+    });
+    return () => clearCurrentPageContext();
+  }, [project?.id, project?.name, project?.slug, project?.city, project?.neighborhood]);
   const fetchProject = async () => {
     try {
       // If preview token is present, fetch without is_published filter
@@ -1007,6 +1024,9 @@ export default function PresaleProjectDetail() {
                   {/* Lead Form - Primary conversion point */}
                   <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} floorplanUrl={project.floorplan_files?.[0] || null} pricingUrl={project.pricing_sheets?.[0] || null} />
                   
+                  {/* Assigned-agent card — only renders if CRM has an agent for this visitor */}
+                  <AssignedAgentCard projectName={project.name} />
+
                   {/* Quick Actions Below Lead Form */}
                   <div className="flex gap-2">
                     <Button variant="outline" size="default" className="flex-1 justify-center h-11 text-sm" asChild>
