@@ -203,6 +203,21 @@ export default function PresaleProjectDetail() {
       fetchProject();
     }
   }, [actualSlug, previewToken]);
+
+  // Register page context for CRM presence broadcasts so the dashboard
+  // shows "Visitor on <project name>" instead of a generic page_view.
+  useEffect(() => {
+    if (!project) return;
+    setCurrentPageContext({
+      project_id: project.id,
+      project_name: project.name,
+      project_slug: project.slug,
+      city: project.city,
+      neighborhood: project.neighborhood ?? undefined,
+      page_type: "project_detail",
+    });
+    return () => clearCurrentPageContext();
+  }, [project?.id, project?.name, project?.slug, project?.city, project?.neighborhood]);
   const fetchProject = async () => {
     try {
       // If preview token is present, fetch without is_published filter
