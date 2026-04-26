@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RefreshCw, PlayCircle, CheckCircle2, XCircle, Loader2, Clock, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
+import { CrmOutboxHealth } from "@/components/admin/CrmOutboxHealth";
 
 interface SyncRun {
   id: string;
@@ -119,6 +120,9 @@ export default function AdminCrmSyncStatus() {
             </Button>
           </div>
         </div>
+
+        {/* Outbox health — Phase A success metric */}
+        <CrmOutboxHealth />
 
         {/* Summary cards */}
         <div className="grid gap-4 md:grid-cols-3">

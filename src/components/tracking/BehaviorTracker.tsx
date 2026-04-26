@@ -25,6 +25,7 @@ import { trackReturnVisit } from "@/lib/tracking/events";
 import { supabase } from "@/integrations/supabase/client";
 import { stitchFromUrl, stitchFromAuth } from "@/lib/crm/identityStitch";
 import { broadcastPresence, broadcastVisitorActive } from "@/lib/crm/presence";
+import { enqueueCanonicalEvent } from "@/lib/crm/outbox";
 
 export function BehaviorTracker() {
   const location = useLocation();
@@ -109,22 +110,20 @@ export function BehaviorTracker() {
         sessionStorage.setItem("pp_lead_return_alerted", "1");
         // Mirror to localStorage so streamBehavior also picks it up
         try { localStorage.setItem("pp_known_email", knownEmail); } catch {}
-        // Fire CRM activity event + admin SMS/desktop alert in parallel
-        supabase.functions.invoke("push-activity-to-crm", {
-          body: {
-            event_type: "return_visit",
-            visitor_id: getVisitorId(),
-            session_id: getSessionId(),
-            email: knownEmail,
+        // CRM activity → durable outbox (no longer fire-and-forget).
+        // Admin SMS/desktop alert stays direct — it's an internal notification,
+        // not a CRM write, and tolerates loss.
+        enqueueCanonicalEvent({
+          event_name: "return_visit",
+          identity: { email: knownEmail },
+          payload: {
+            page_url: window.location.href,
+            page_path: window.location.pathname,
+            last_page_viewed: getLastPageViewed(),
+            referrer: document.referrer || null,
             source: "presale_properties_return_visit",
-            payload: {
-              page_url: window.location.href,
-              page_path: window.location.pathname,
-              last_page_viewed: getLastPageViewed(),
-              referrer: document.referrer || null,
-            },
           },
-        }).catch(() => {});
+        });
         supabase.functions.invoke("notify-lead-return", {
           body: {
             email: knownEmail,
