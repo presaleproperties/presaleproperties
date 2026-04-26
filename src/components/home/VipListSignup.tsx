@@ -95,7 +95,21 @@ export function VipListSignup() {
             </div>
 
             <div>
-              {!isSubmitted ? (
+              {isAlreadyVip ? (
+                <div className="flex items-start gap-3 p-5 rounded-xl bg-gradient-to-br from-primary/10 to-background border-2 border-primary/40 shadow-sm">
+                  <Sparkles className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-foreground mb-1">
+                      You're already on the VIP list ✨
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {identity?.assigned_agent
+                        ? `${identity.assigned_agent.name.split(" ")[0]} sends you new launches the moment they open. Check your inbox for the latest.`
+                        : "You get new launches first. Check your inbox for the latest releases."}
+                    </p>
+                  </div>
+                </div>
+              ) : !isSubmitted ? (
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
