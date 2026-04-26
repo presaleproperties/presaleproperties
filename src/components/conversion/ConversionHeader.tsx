@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Users, Tag, Sparkles } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
+import { IntentAwareCTA } from "@/components/crm/IntentAwareCTA";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   NavigationMenu,
@@ -348,16 +349,21 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               <Map className="h-3.5 w-3.5" />
               Map
             </Link>
-            {/* Primary gold CTA */}
-            <Button
-              asChild
-              size="sm"
-              className="h-9 px-5 text-[13px] font-bold rounded-lg shadow-[0_2px_12px_hsl(var(--primary)/0.28)] hover:shadow-[0_4px_20px_hsl(var(--primary)/0.38)] transition-all duration-200"
-            >
-              <Link to="/presale-projects">
-                View Projects
-              </Link>
-            </Button>
+            {/* Primary gold CTA — auto-swaps to WhatsApp-to-agent for hot leads */}
+            <IntentAwareCTA
+              className="h-9 px-4 text-[13px] font-bold rounded-lg bg-[#25D366] hover:bg-[#1ebe5a] text-white"
+              fallback={
+                <Button
+                  asChild
+                  size="sm"
+                  className="h-9 px-5 text-[13px] font-bold rounded-lg shadow-[0_2px_12px_hsl(var(--primary)/0.28)] hover:shadow-[0_4px_20px_hsl(var(--primary)/0.38)] transition-all duration-200"
+                >
+                  <Link to="/presale-projects">
+                    View Projects
+                  </Link>
+                </Button>
+              }
+            />
           </div>
 
           {/* Mobile Navigation */}
