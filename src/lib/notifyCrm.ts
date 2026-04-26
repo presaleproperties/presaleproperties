@@ -10,8 +10,12 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
-import { getVisitorId, getSessionId } from "@/lib/tracking";
 import { setKnownEmail } from "@/lib/tracking/streamBehavior";
+import {
+  buildCanonicalEvent,
+  eventToCrmBridgeBody,
+  type CanonicalEventName,
+} from "@/lib/contracts/leadContract";
 
 export interface NotifyCrmInput {
   /** Canonical event type, e.g. 'newsletter_subscribe', 'appointment_booked',
@@ -33,27 +37,21 @@ export interface NotifyCrmInput {
 export function notifyCrm(input: NotifyCrmInput): void {
   try {
     if (input.email) setKnownEmail(input.email);
+    const evt = buildCanonicalEvent({
+      event_name: input.event_type as CanonicalEventName,
+      identity: {
+        email: input.email ?? undefined,
+        first_name: input.first_name ?? undefined,
+        last_name: input.last_name ?? undefined,
+        phone: input.phone ?? undefined,
+      },
+      payload: input.payload,
+    });
+    const body = eventToCrmBridgeBody(evt);
+    if (input.source) body.source = input.source;
     supabase.functions
-      .invoke("push-activity-to-crm", {
-        body: {
-          event_type: input.event_type,
-          visitor_id: getVisitorId(),
-          session_id: getSessionId(),
-          email: input.email ? String(input.email).trim().toLowerCase() : undefined,
-          first_name: input.first_name ?? undefined,
-          last_name: input.last_name ?? undefined,
-          phone: input.phone ?? undefined,
-          source: input.source ?? "presale_properties",
-          payload: {
-            ...(input.payload ?? {}),
-            page_url: typeof window !== "undefined" ? window.location.href : undefined,
-            page_path: typeof window !== "undefined" ? window.location.pathname : undefined,
-          },
-        },
-      })
-      .catch(() => {
-        /* swallow */
-      });
+      .invoke("push-activity-to-crm", { body })
+      .catch(() => { /* swallow */ });
   } catch {
     /* ignore */
   }
