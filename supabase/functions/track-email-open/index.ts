@@ -157,6 +157,14 @@ const handler = async (req: Request): Promise<Response> => {
 
           console.log(`Tracked click for tracking_id ${trackingId} (click #${newClickCount}, url: ${clickUrl}, cta: ${clickContext.cta}, project: ${clickContext.project_slug})`);
 
+          // Forward to DealsFlow CRM timeline
+          forwardToDealsFlow("email_clicked", {
+            clicked_url: clickUrl,
+            click_count: newClickCount,
+            cta: clickContext.cta,
+            project_slug: clickContext.project_slug,
+          });
+
           // Fire engagement event → Zapier/Lofty (fire-and-forget)
           supabase.functions.invoke("send-lead-engagement-event", {
             body: {
@@ -197,6 +205,9 @@ const handler = async (req: Request): Promise<Response> => {
             .eq("id", logEntry.id);
 
           console.log(`Tracked email open for tracking_id ${trackingId} (open #${newCount})`);
+
+          // Forward to DealsFlow CRM timeline (every open, dedup happens downstream)
+          forwardToDealsFlow("email_opened", { open_count: newCount, first_open: isFirstOpen });
 
           // Fire engagement event → Zapier/Lofty (only on first open to reduce noise)
           if (isFirstOpen) {
