@@ -99,6 +99,21 @@ const handler = async (req: Request): Promise<Response> => {
 
       if (logEntry) {
         resolvedEmailLogId = logEntry.id;
+
+        // Fire-and-forget forward to DealsFlow CRM so opens/clicks land on
+        // the lead's CRM timeline within seconds. Failures are silently
+        // swallowed — email tracking must never block.
+        const forwardToDealsFlow = (eventType: "email_opened" | "email_clicked", payload: Record<string, unknown>) => {
+          supabase.functions.invoke("push-activity-to-crm", {
+            body: {
+              event_type: eventType,
+              email: logEntry.email_to,
+              source: "presale_properties_email",
+              payload: { subject: logEntry.subject, ...payload },
+            },
+          }).catch(() => {});
+        };
+
         if (type === "click") {
           // ── Click tracking ──
           const isFirstClick = !logEntry.clicked_at;
