@@ -104,7 +104,9 @@ function firstImage(value: unknown): string | null {
   if (Array.isArray(value)) {
     for (const item of value) {
       if (typeof item === "string") return ensureHttps(item);
-      const url = item?.MediaURL || item?.media_url || item?.url || item?.src;
+      if (!item || typeof item !== "object") continue;
+      const photo = item as Record<string, unknown>;
+      const url = photo.MediaURL || photo.media_url || photo.url || photo.src;
       if (url) return ensureHttps(String(url));
     }
   }
