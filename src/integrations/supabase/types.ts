@@ -1211,6 +1211,89 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_messages: {
+        Row: {
+          author_email: string | null
+          author_id: string | null
+          author_name: string | null
+          author_type: string
+          body: string | null
+          channel: string
+          created_at: string
+          crm_contact_id: string | null
+          direction: string
+          email: string | null
+          external_id: string | null
+          id: string
+          lead_id: string | null
+          metadata: Json
+          occurred_at: string
+          phone: string | null
+          source: string
+          subject: string | null
+          sync_status: string
+          synced_to_crm_at: string | null
+          updated_at: string
+          visitor_id: string | null
+        }
+        Insert: {
+          author_email?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          author_type?: string
+          body?: string | null
+          channel: string
+          created_at?: string
+          crm_contact_id?: string | null
+          direction: string
+          email?: string | null
+          external_id?: string | null
+          id?: string
+          lead_id?: string | null
+          metadata?: Json
+          occurred_at?: string
+          phone?: string | null
+          source?: string
+          subject?: string | null
+          sync_status?: string
+          synced_to_crm_at?: string | null
+          updated_at?: string
+          visitor_id?: string | null
+        }
+        Update: {
+          author_email?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          author_type?: string
+          body?: string | null
+          channel?: string
+          created_at?: string
+          crm_contact_id?: string | null
+          direction?: string
+          email?: string | null
+          external_id?: string | null
+          id?: string
+          lead_id?: string | null
+          metadata?: Json
+          occurred_at?: string
+          phone?: string | null
+          source?: string
+          subject?: string | null
+          sync_status?: string
+          synced_to_crm_at?: string | null
+          updated_at?: string
+          visitor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_messages_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "project_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_outbox: {
         Row: {
           attempts: number
