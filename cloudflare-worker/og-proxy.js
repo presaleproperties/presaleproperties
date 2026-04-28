@@ -62,9 +62,10 @@ export default {
       return fetch(request);
     }
 
-    // Bot detected — proxy to og-prerender edge function
+    // Bot detected — proxy to the OG preview function with the exact shared path.
     try {
-      const ogUrl = `${OG_FUNCTION_URL}?path=${encodeURIComponent(url.pathname)}`;
+      const originalPath = `${url.pathname}${url.search}`;
+      const ogUrl = `${OG_FUNCTION_URL}?path=${encodeURIComponent(originalPath)}`;
 
       const ogResponse = await fetch(ogUrl, {
         headers: {
