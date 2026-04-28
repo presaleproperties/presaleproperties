@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { RefreshCw, PlayCircle, CheckCircle2, XCircle, Loader2, Clock, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { CrmOutboxHealth } from "@/components/admin/CrmOutboxHealth";
+import { CrmOutboxFailures } from "@/components/admin/CrmOutboxFailures";
 
 interface SyncRun {
   id: string;
@@ -123,6 +124,9 @@ export default function AdminCrmSyncStatus() {
 
         {/* Outbox health — Phase A success metric */}
         <CrmOutboxHealth />
+
+        {/* Failed/dead messages with retry + discard */}
+        <CrmOutboxFailures />
 
         {/* Summary cards */}
         <div className="grid gap-4 md:grid-cols-3">

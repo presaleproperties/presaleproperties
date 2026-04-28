@@ -54,22 +54,23 @@ Deno.serve(async (req) => {
       cFrom += pageSize;
     }
 
-    // Pull from project_leads (user_id may be null for many)
+    // Pull from project_leads — uses visitor_id (the anonymous cookie) as
+    // the presale_user_id since project_leads has no user_id column.
     const leadsMap = new Map<string, string>();
     let lFrom = 0;
     while (true) {
       const { data, error } = await supabase
         .from("project_leads")
-        .select("user_id, email")
+        .select("visitor_id, email")
         .not("email", "is", null)
-        .not("user_id", "is", null)
+        .not("visitor_id", "is", null)
         .range(lFrom, lFrom + pageSize - 1);
       if (error) throw new Error(`project_leads fetch failed: ${error.message}`);
       if (!data || data.length === 0) break;
       for (const r of data) {
         const email = String(r.email || "").trim().toLowerCase();
-        if (!email || !r.user_id) continue;
-        if (!leadsMap.has(email)) leadsMap.set(email, r.user_id);
+        if (!email || !r.visitor_id) continue;
+        if (!leadsMap.has(email)) leadsMap.set(email, r.visitor_id);
       }
       if (data.length < pageSize) break;
       lFrom += pageSize;
