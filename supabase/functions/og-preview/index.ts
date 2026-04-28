@@ -207,15 +207,15 @@ async function resolveProjectFromSeoPath(supabase: any, pathname: string, fullUr
 }
 
 async function resolveListing(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
-  // Try by slug field first, then by id fallback
+  // Assignments are stored in public.listings and route as /assignments/:id.
   const { data } = await supabase
     .from("listings")
     .select("title, project_name, city, neighborhood, featured_image, photos, description, beds, baths, assignment_price, updated_at")
-    .or(`slug.eq.${slug},id.eq.${slug}`)
+    .eq("id", slug)
     .maybeSingle();
   if (!data) return null;
-  const image = data.featured_image || (Array.isArray(data.photos) && data.photos[0]) || DEFAULT_IMAGE;
-  const price = data.assignment_price ? `$${Number(data.assignment_price).toLocaleString()}` : null;
+  const image = ensureHttps(data.featured_image) || firstImage(data.photos) || DEFAULT_IMAGE;
+  const price = formatCad(data.assignment_price);
   const specs = [
     data.beds ? `${data.beds} bed` : null,
     data.baths ? `${data.baths} bath` : null,
@@ -230,6 +230,37 @@ async function resolveListing(supabase: any, slug: string, fullUrl: string): Pro
     url: fullUrl,
     type: "website",
     updatedAt: data.updated_at,
+  };
+}
+
+async function resolveResale(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
+  const listingKey = slug.match(/-(\d{6,})$/)?.[1] || (slug.match(/^\d{6,}$/) ? slug : null);
+  if (!listingKey) return null;
+
+  const { data } = await supabase
+    .from("mls_listings_safe")
+    .select("listing_key, listing_price, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, street_suffix, unit_number, bedrooms_total, bathrooms_total, living_area, photos, public_remarks, modification_timestamp")
+    .eq("listing_key", listingKey)
+    .maybeSingle();
+  if (!data) return null;
+
+  const address = data.unparsed_address || [data.unit_number ? `#${data.unit_number}` : null, data.street_number, data.street_name, data.street_suffix].filter(Boolean).join(" ") || data.city;
+  const propertyType = data.property_sub_type || data.property_type || "home";
+  const price = formatCad(data.listing_price);
+  const specs = [
+    data.bedrooms_total != null ? `${data.bedrooms_total} bed` : null,
+    data.bathrooms_total != null ? `${data.bathrooms_total} bath` : null,
+    data.living_area ? `${Number(data.living_area).toLocaleString()} sqft` : null,
+    price,
+  ].filter(Boolean).join(" · ");
+
+  return {
+    title: `${address} — ${data.city} ${propertyType} | Presale Properties`,
+    description: stripMarkdown(data.public_remarks).slice(0, 200) || `${specs}${data.neighborhood || data.city ? ` in ${data.neighborhood || data.city}` : ""}.`,
+    image: firstImage(data.photos) || DEFAULT_IMAGE,
+    url: fullUrl,
+    type: "website",
+    updatedAt: data.modification_timestamp,
   };
 }
 
