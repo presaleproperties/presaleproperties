@@ -512,16 +512,16 @@ Deno.serve(async (req) => {
       });
     }
 
+    const responseHeaders = new Headers(corsHeaders);
+    responseHeaders.set("Content-Type", "text/html; charset=utf-8");
+    responseHeaders.set("Cache-Control", cacheControl);
+    responseHeaders.set("ETag", etag);
+    responseHeaders.set("Vary", "User-Agent");
+    if (lastModified) responseHeaders.set("Last-Modified", lastModified);
+
     return new Response(renderHtml(meta), {
       status: 200,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": cacheControl,
-        ETag: etag,
-        Vary: "User-Agent",
-        ...(lastModified ? { "Last-Modified": lastModified } : {}),
-      },
+      headers: responseHeaders,
     });
   } catch (err) {
     console.error("og-preview error:", err);
@@ -532,13 +532,13 @@ Deno.serve(async (req) => {
       image: DEFAULT_IMAGE,
       url: SITE_ORIGIN,
     });
+    const fallbackHeaders = new Headers(corsHeaders);
+    fallbackHeaders.set("Content-Type", "text/html; charset=utf-8");
+    fallbackHeaders.set("Cache-Control", "no-store");
+
     return new Response(fallback, {
       status: 200,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "no-store",
-      },
+      headers: fallbackHeaders,
     });
   }
 });
