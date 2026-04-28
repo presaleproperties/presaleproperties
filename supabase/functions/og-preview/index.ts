@@ -226,7 +226,7 @@ async function resolveListing(supabase: any, slug: string, fullUrl: string): Pro
   return {
     title: `${data.title || data.project_name} | Presale Properties`,
     description:
-      (data.description || "").slice(0, 200) ||
+      stripMarkdown(data.description).slice(0, 200) ||
       `${specs}${data.city ? ` in ${data.city}` : ""}. Move-in ready presale assignment.`,
     image,
     url: fullUrl,
@@ -396,6 +396,10 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAdmin = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? supabaseKey,
+    );
 
     const pathname = new URL(targetUrl).pathname.replace(/\/+$/, "") || "/";
     const segments = pathname.split("/").filter(Boolean);
@@ -450,11 +454,11 @@ Deno.serve(async (req) => {
     } else if (segments[0] === "assignments" && segments[1]) {
       meta = await resolveListing(supabase, segments[1], targetUrl);
     } else if (segments[0] === "properties" && segments[1]) {
-      meta = await resolveResale(supabase, segments[1], targetUrl);
+      meta = await resolveResale(supabaseAdmin, segments[1], targetUrl);
     } else if (segments[0] === "listings" && segments[1]) {
       meta = await resolveListing(supabase, segments[1], targetUrl);
     } else if (segments[0] === "resale" && segments[1]) {
-      meta = await resolveResale(supabase, segments[1], targetUrl);
+      meta = await resolveResale(supabaseAdmin, segments[1], targetUrl);
     } else if (segments[0] === "blog" && segments[1] && segments[1] !== "category") {
       meta = await resolveBlog(supabase, segments[1], targetUrl);
     } else if (segments[0] === "deck" && segments[1]) {
