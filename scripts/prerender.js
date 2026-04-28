@@ -28,6 +28,22 @@ const DIST_DIR = path.resolve(__dirname, "..", "dist");
 const SITE = "https://presaleproperties.com";
 const DEFAULT_OG = `${SITE}/og-image.png`;
 
+// ─── Load .env (Vite-style) into process.env so the script works in any CI ─
+async function loadDotenv() {
+  try {
+    const raw = await fs.readFile(path.resolve(__dirname, "..", ".env"), "utf8");
+    for (const line of raw.split(/\r?\n/)) {
+      const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/i);
+      if (!m) continue;
+      const [, k, v] = m;
+      if (process.env[k] == null) process.env[k] = v.replace(/^["']|["']$/g, "");
+    }
+  } catch {
+    // .env optional
+  }
+}
+await loadDotenv();
+
 // ─── Supabase client (anon, read-only public data) ─────────────────────────
 const SUPABASE_URL =
   process.env.VITE_SUPABASE_URL ||
@@ -35,6 +51,7 @@ const SUPABASE_URL =
   "https://thvlisplwqhtjpzpedhq.supabase.co";
 const SUPABASE_KEY =
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
   process.env.SUPABASE_ANON_KEY ||
   process.env.VITE_SUPABASE_ANON_KEY;
 
