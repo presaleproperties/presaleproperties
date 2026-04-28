@@ -2,8 +2,12 @@ name = "og-proxy"
 main = "og-proxy.js"
 compatibility_date = "2024-01-01"
 
-# Deploy route — update with your actual zone
-# [triggers]
-# routes = [
-#   { pattern = "presaleproperties.com/*", zone_name = "presaleproperties.com" }
-# ]
+# Routes are LIVE — uncommented and ready to deploy.
+# Run `wrangler deploy` from this directory.
+[[routes]]
+pattern = "presaleproperties.com/*"
+zone_name = "presaleproperties.com"
+
+[[routes]]
+pattern = "www.presaleproperties.com/*"
+zone_name = "presaleproperties.com"

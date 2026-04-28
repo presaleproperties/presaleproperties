@@ -1,22 +1,22 @@
-## 🔧 TODO: Deploy Cloudflare Worker for Social Sharing OG Tags
+# OG Social Sharing — Status
 
-The `og-prerender` edge function is built, deployed, and tested. The Cloudflare Worker code is ready at `cloudflare-worker/og-proxy.js`. These steps remain:
+## ✅ Done (backend)
+- `og-snapshot` edge function returns per-page meta for homepage, project pages, listings, blog, deck, etc.
+- Verified live: `curl -A "facebookexternalhit/1.1" "https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-snapshot?path=/&force=1"` returns correct HTML.
+- `cloudflare-worker/wrangler.toml` routes are uncommented and ready.
 
-### Deployment Steps
-1. **Install Wrangler CLI** — `npm install -g wrangler`
-2. **Login to Cloudflare** — `wrangler login`
-3. **Uncomment routes** in `cloudflare-worker/wrangler.toml` and set your zone name
-4. **Deploy the Worker** — `cd cloudflare-worker && wrangler deploy`
+## ⏳ Single remaining step (must be done by site owner)
+Deploy the Cloudflare Worker. Detailed walkthrough: `cloudflare-worker/DEPLOY.md`
 
-### Verification Steps
-5. **Test with Facebook Sharing Debugger** — paste a blog/project URL into https://developers.facebook.com/tools/debug/
-6. **Test with LinkedIn Post Inspector** — paste a URL into https://www.linkedin.com/post-inspector/
-7. **Test WhatsApp** — send a project link in a WhatsApp chat and confirm the preview card shows the correct title, image, and description
-8. **Test iMessage** — send a link in iMessage and verify the rich preview
+```bash
+npm install -g wrangler
+wrangler login
+cd cloudflare-worker && wrangler deploy
+```
 
-### Pages Covered
-- ✅ Blog posts (`/blog/:slug`) — title, excerpt, featured image
-- ✅ Presale projects (SEO URLs + legacy `/presale-projects/:slug`) — project name, price, hero image
-- ✅ Developer profiles (`/developers/:slug`) — developer name, description, logo
-- ✅ City pages (`/surrey-presale-condos`, etc.) — city name, type
-- ✅ All other pages — default homepage OG tags
+This requires a Cloudflare login and **cannot be done from Lovable's environment** — it's a one-time owner action.
+
+## Why this is the only path
+- Lovable hosting is a static SPA. Crawlers (WhatsApp, iMessage, Facebook, LinkedIn, etc.) don't run JavaScript, so per-page Helmet tags are invisible to them.
+- Lovable hosting does not support `_headers`, `_redirects`, or middleware.
+- The Cloudflare Worker sits in front of the domain, intercepts crawler User-Agents, and serves prerendered meta from the backend.
