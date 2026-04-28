@@ -184,7 +184,7 @@ async function fetchAssignments() {
     .from("listings")
     .select("id,title,project_name,city,neighborhood,description,featured_image,photos,updated_at")
     .eq("listing_type", "assignment")
-    .eq("status", "active");
+    .in("status", ["published", "active"]);
   if (error) {
     console.error("[prerender] listings(assignments):", error.message);
     return [];
