@@ -1186,10 +1186,9 @@ export default function DashboardDeckBuilder() {
                 />
                 {slug && (
                   <button onClick={() => {
-                    // OG proxy URL — gives rich WhatsApp/social previews, redirects humans to the real deck
-                    const shareUrl = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${slug}`;
+                    const shareUrl = `https://presaleproperties.com/deck/${slug}`;
                     navigator.clipboard.writeText(shareUrl);
-                    toast.success("Share link copied! WhatsApp & social previews will show the deck image.");
+                    toast.success("Share link copied!");
                   }}
                     className="shrink-0 text-muted-foreground hover:text-primary transition-colors">
                     <Copy className="h-4 w-4" />
