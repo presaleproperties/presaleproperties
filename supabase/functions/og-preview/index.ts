@@ -93,6 +93,37 @@ function escapeHtml(s: string) {
     .replace(/'/g, "&#39;");
 }
 
+function ensureHttps(url?: string | null) {
+  if (!url) return null;
+  return url.startsWith("http://") ? url.replace("http://", "https://") : url;
+}
+
+function firstImage(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === "string") return ensureHttps(value);
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (typeof item === "string") return ensureHttps(item);
+      const url = item?.MediaURL || item?.media_url || item?.url || item?.src;
+      if (url) return ensureHttps(String(url));
+    }
+  }
+  return null;
+}
+
+function formatCad(value?: number | null) {
+  if (!value) return null;
+  return new Intl.NumberFormat("en-CA", {
+    style: "currency",
+    currency: "CAD",
+    maximumFractionDigits: 0,
+  }).format(Number(value));
+}
+
+function stripMarkdown(value?: string | null) {
+  return (value || "").replace(/[#*_`>]/g, "").replace(/\s+/g, " ").trim();
+}
+
 interface Meta {
   title: string;
   description: string;
@@ -150,22 +181,29 @@ function renderHtml(meta: Meta) {
 async function resolveProject(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
   const { data } = await supabase
     .from("presale_projects")
-    .select("name, city, neighborhood, hero_image_url, gallery_images, description, updated_at")
+    .select("name, city, neighborhood, featured_image, gallery_images, short_description, full_description, starting_price, updated_at")
     .eq("slug", slug)
     .maybeSingle();
   if (!data) return null;
-  const image = data.hero_image_url || (Array.isArray(data.gallery_images) && data.gallery_images[0]) || DEFAULT_IMAGE;
+  const image = ensureHttps(data.featured_image) || firstImage(data.gallery_images) || DEFAULT_IMAGE;
   const locale = [data.neighborhood, data.city].filter(Boolean).join(", ");
+  const price = formatCad(data.starting_price);
+  const fallback = `Floor plans, pricing, and VIP access for ${data.name}${locale ? ` in ${locale}` : ""}${price ? ` from ${price}` : ""}.`;
   return {
     title: `${data.name}${locale ? ` — ${locale}` : ""} | Presale Properties`,
     description:
-      (data.description || "").slice(0, 200) ||
-      `Floor plans, pricing, and VIP access for ${data.name}${locale ? ` in ${locale}` : ""}.`,
+      stripMarkdown(data.short_description || data.full_description).slice(0, 200) || fallback,
     image,
     url: fullUrl,
     type: "website",
     updatedAt: data.updated_at,
   };
+}
+
+async function resolveProjectFromSeoPath(supabase: any, pathname: string, fullUrl: string): Promise<Meta | null> {
+  const match = pathname.replace(/^\//, "").match(/^(.+)-presale-(condos|townhomes|homes|duplexes)-(.+)$/);
+  if (!match) return null;
+  return resolveProject(supabase, match[3], fullUrl);
 }
 
 async function resolveListing(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
