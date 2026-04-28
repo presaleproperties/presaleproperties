@@ -5,7 +5,11 @@
 // Contract: POST { event_type, visitor_id, email?, payload } to bridge-ingest-lead
 // (the CRM bridge dedups on visitor_id → email → phone).
 
-const CRM_INGEST_URL = "https://svbilqvudkkdhslxebce.supabase.co/functions/v1/bridge-ingest-lead";
+// Configurable target — DealsFlow's inbound webhook (receive-presale-activity).
+// Defaults preserve the legacy bridge URL if the env var is not set.
+const CRM_INGEST_URL =
+  Deno.env.get("DEALSFLOW_WEBHOOK_URL") ||
+  "https://svbilqvudkkdhslxebce.supabase.co/functions/v1/receive-presale-activity";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
