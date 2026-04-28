@@ -242,19 +242,16 @@ export default function DeckPublicPage() {
     : `${deck.project_name} — Exclusive Presale${locationLabel ? ` | ${locationLabel}` : ""}`;
 
   const canonicalUrl = `https://presaleproperties.com/deck/${deck.slug}`;
-  // Proxy URL — serves full OG meta to WhatsApp / iMessage / social crawlers
-  const proxyUrl = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?deckSlug=${deck.slug}`;
 
   return (
     <>
-    {/* OG meta — proxy URL ensures hero image shows in WhatsApp/iMessage previews */}
     <Helmet>
       <title>{deck.project_name} — Presale Investment Deck | Presale Properties</title>
       <meta name="description" content={metaDesc} />
       <meta property="og:type" content="website" />
       <meta property="og:title" content={ogTitle} />
       <meta property="og:description" content={metaDesc} />
-      <meta property="og:url" content={proxyUrl} />
+      <meta property="og:url" content={canonicalUrl} />
       {deck.hero_image_url && <meta property="og:image" content={deck.hero_image_url} />}
       {deck.hero_image_url && <meta property="og:image:secure_url" content={deck.hero_image_url} />}
       <meta property="og:image:width" content="1200" />
