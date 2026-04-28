@@ -20,6 +20,8 @@ import {
 import { useTemplatePerformance, lookupMetrics } from "@/hooks/useTemplatePerformance";
 import { SocialPostGenerator } from "@/components/admin/marketing/SocialPostGenerator";
 import { SoldPostGenerator } from "@/components/admin/marketing/SoldPostGenerator";
+import { SystemEmailsPanel } from "@/components/admin/marketing/SystemEmailsPanel";
+import { Zap } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const CREATE_OPTIONS = [
@@ -62,7 +64,7 @@ export default function AdminMarketingHub() {
   const [campaignAssets, setCampaignAssets] = useState<SavedAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"emails" | "flyers" | "social">("emails");
+  const [activeTab, setActiveTab] = useState<"emails" | "flyers" | "social" | "system">("emails");
   const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
   const [sendAsset, setSendAsset] = useState<SavedAsset | null>(null);
   const [previewAsset, setPreviewAsset] = useState<SavedAsset | null>(null);
@@ -197,7 +199,7 @@ export default function AdminMarketingHub() {
               <div className="flex items-center justify-between mb-4">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Email Templates</p>
                 <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
-                  {(["emails", "flyers", "social"] as const).map(tab => (
+                  {(["emails", "flyers", "social", "system"] as const).map(tab => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
@@ -208,6 +210,8 @@ export default function AdminMarketingHub() {
                     >
                       {tab === "social" ? (
                         <span className="flex items-center gap-1"><Share2 className="h-3 w-3" /> Social</span>
+                      ) : tab === "system" ? (
+                        <span className="flex items-center gap-1"><Zap className="h-3 w-3" /> Automated</span>
                       ) : (
                         <>{tab} ({tab === "emails" ? emailAssets.length : campaignAssets.length})</>
                       )}
@@ -216,7 +220,9 @@ export default function AdminMarketingHub() {
                 </div>
               </div>
 
-              {activeTab === "social" ? (
+              {activeTab === "system" ? (
+                <SystemEmailsPanel />
+              ) : activeTab === "social" ? (
                 <Tabs defaultValue="ads" className="w-full">
                   <TabsList className="mb-4">
                     <TabsTrigger value="ads" className="gap-1.5 text-xs">
