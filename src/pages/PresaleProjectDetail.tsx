@@ -340,8 +340,7 @@ export default function PresaleProjectDetail() {
     return null;
   })();
   const handleShare = async () => {
-    // Use OG meta proxy for sharing - serves property image to bots, redirects humans
-    const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-property-meta?projectSlug=${project?.slug}`;
+    const shareUrl = canonicalUrl;
 
     // Try native share API first (works on mobile and some desktop browsers)
     if (navigator.share && navigator.canShare?.({

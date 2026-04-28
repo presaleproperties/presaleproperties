@@ -93,6 +93,39 @@ function escapeHtml(s: string) {
     .replace(/'/g, "&#39;");
 }
 
+function ensureHttps(url?: string | null) {
+  if (!url) return null;
+  return url.startsWith("http://") ? url.replace("http://", "https://") : url;
+}
+
+function firstImage(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === "string") return ensureHttps(value);
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (typeof item === "string") return ensureHttps(item);
+      if (!item || typeof item !== "object") continue;
+      const photo = item as Record<string, unknown>;
+      const url = photo.MediaURL || photo.media_url || photo.url || photo.src;
+      if (url) return ensureHttps(String(url));
+    }
+  }
+  return null;
+}
+
+function formatCad(value?: number | null) {
+  if (!value) return null;
+  return new Intl.NumberFormat("en-CA", {
+    style: "currency",
+    currency: "CAD",
+    maximumFractionDigits: 0,
+  }).format(Number(value));
+}
+
+function stripMarkdown(value?: string | null) {
+  return (value || "").replace(/[#*_`>]/g, "").replace(/\s+/g, " ").trim();
+}
+
 interface Meta {
   title: string;
   description: string;
@@ -150,17 +183,18 @@ function renderHtml(meta: Meta) {
 async function resolveProject(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
   const { data } = await supabase
     .from("presale_projects")
-    .select("name, city, neighborhood, hero_image_url, gallery_images, description, updated_at")
+    .select("name, city, neighborhood, featured_image, gallery_images, short_description, full_description, starting_price, updated_at")
     .eq("slug", slug)
     .maybeSingle();
   if (!data) return null;
-  const image = data.hero_image_url || (Array.isArray(data.gallery_images) && data.gallery_images[0]) || DEFAULT_IMAGE;
+  const image = ensureHttps(data.featured_image) || firstImage(data.gallery_images) || DEFAULT_IMAGE;
   const locale = [data.neighborhood, data.city].filter(Boolean).join(", ");
+  const price = formatCad(data.starting_price);
+  const fallback = `Floor plans, pricing, and VIP access for ${data.name}${locale ? ` in ${locale}` : ""}${price ? ` from ${price}` : ""}.`;
   return {
     title: `${data.name}${locale ? ` — ${locale}` : ""} | Presale Properties`,
     description:
-      (data.description || "").slice(0, 200) ||
-      `Floor plans, pricing, and VIP access for ${data.name}${locale ? ` in ${locale}` : ""}.`,
+      stripMarkdown(data.short_description || data.full_description).slice(0, 200) || fallback,
     image,
     url: fullUrl,
     type: "website",
@@ -168,16 +202,22 @@ async function resolveProject(supabase: any, slug: string, fullUrl: string): Pro
   };
 }
 
+async function resolveProjectFromSeoPath(supabase: any, pathname: string, fullUrl: string): Promise<Meta | null> {
+  const match = pathname.replace(/^\//, "").match(/^(.+)-presale-(condos|townhomes|homes|duplexes)-(.+)$/);
+  if (!match) return null;
+  return resolveProject(supabase, match[3], fullUrl);
+}
+
 async function resolveListing(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
-  // Try by slug field first, then by id fallback
+  // Assignments are stored in public.listings and route as /assignments/:id.
   const { data } = await supabase
     .from("listings")
     .select("title, project_name, city, neighborhood, featured_image, photos, description, beds, baths, assignment_price, updated_at")
-    .or(`slug.eq.${slug},id.eq.${slug}`)
+    .eq("id", slug)
     .maybeSingle();
   if (!data) return null;
-  const image = data.featured_image || (Array.isArray(data.photos) && data.photos[0]) || DEFAULT_IMAGE;
-  const price = data.assignment_price ? `$${Number(data.assignment_price).toLocaleString()}` : null;
+  const image = ensureHttps(data.featured_image) || firstImage(data.photos) || DEFAULT_IMAGE;
+  const price = formatCad(data.assignment_price);
   const specs = [
     data.beds ? `${data.beds} bed` : null,
     data.baths ? `${data.baths} bath` : null,
@@ -186,12 +226,43 @@ async function resolveListing(supabase: any, slug: string, fullUrl: string): Pro
   return {
     title: `${data.title || data.project_name} | Presale Properties`,
     description:
-      (data.description || "").slice(0, 200) ||
+      stripMarkdown(data.description).slice(0, 200) ||
       `${specs}${data.city ? ` in ${data.city}` : ""}. Move-in ready presale assignment.`,
     image,
     url: fullUrl,
     type: "website",
     updatedAt: data.updated_at,
+  };
+}
+
+async function resolveResale(supabase: any, slug: string, fullUrl: string): Promise<Meta | null> {
+  const listingKey = slug.match(/-(\d{6,})$/)?.[1] || (slug.match(/^\d{6,}$/) ? slug : null);
+  if (!listingKey) return null;
+
+  const { data } = await supabase
+    .from("mls_listings_safe")
+    .select("listing_key, listing_price, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, street_suffix, unit_number, bedrooms_total, bathrooms_total, living_area, photos, public_remarks, modification_timestamp")
+    .eq("listing_key", listingKey)
+    .maybeSingle();
+  if (!data) return null;
+
+  const address = data.unparsed_address || [data.unit_number ? `#${data.unit_number}` : null, data.street_number, data.street_name, data.street_suffix].filter(Boolean).join(" ") || data.city;
+  const propertyType = data.property_sub_type || data.property_type || "home";
+  const price = formatCad(data.listing_price);
+  const specs = [
+    data.bedrooms_total != null ? `${data.bedrooms_total} bed` : null,
+    data.bathrooms_total != null ? `${data.bathrooms_total} bath` : null,
+    data.living_area ? `${Number(data.living_area).toLocaleString()} sqft` : null,
+    price,
+  ].filter(Boolean).join(" · ");
+
+  return {
+    title: `${address} — ${data.city} ${propertyType} | Presale Properties`,
+    description: stripMarkdown(data.public_remarks).slice(0, 200) || `${specs}${data.neighborhood || data.city ? ` in ${data.neighborhood || data.city}` : ""}.`,
+    image: firstImage(data.photos) || DEFAULT_IMAGE,
+    url: fullUrl,
+    type: "website",
+    updatedAt: data.modification_timestamp,
   };
 }
 
@@ -325,6 +396,10 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAdmin = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? supabaseKey,
+    );
 
     const pathname = new URL(targetUrl).pathname.replace(/\/+$/, "") || "/";
     const segments = pathname.split("/").filter(Boolean);
@@ -339,6 +414,8 @@ Deno.serve(async (req) => {
       const RESOURCE_MAP: Record<string, string> = {
         "presale-projects": "project",
         projects: "project",
+        properties: "listing",
+        assignments: "assignment",
         listings: "listing",
         resale: "listing",
         blog: "blog_post",
@@ -374,10 +451,14 @@ Deno.serve(async (req) => {
       meta = await resolveProject(supabase, segments[1], targetUrl);
     } else if (segments[0] === "projects" && segments[1]) {
       meta = await resolveProject(supabase, segments[1], targetUrl);
+    } else if (segments[0] === "assignments" && segments[1]) {
+      meta = await resolveListing(supabase, segments[1], targetUrl);
+    } else if (segments[0] === "properties" && segments[1]) {
+      meta = await resolveResale(supabaseAdmin, segments[1], targetUrl);
     } else if (segments[0] === "listings" && segments[1]) {
       meta = await resolveListing(supabase, segments[1], targetUrl);
     } else if (segments[0] === "resale" && segments[1]) {
-      meta = await resolveListing(supabase, segments[1], targetUrl);
+      meta = await resolveResale(supabaseAdmin, segments[1], targetUrl);
     } else if (segments[0] === "blog" && segments[1] && segments[1] !== "category") {
       meta = await resolveBlog(supabase, segments[1], targetUrl);
     } else if (segments[0] === "deck" && segments[1]) {
@@ -385,6 +466,8 @@ Deno.serve(async (req) => {
     } else if (segments[0] === "developers" && segments[1]) {
       meta = await resolveDeveloper(supabase, segments[1], targetUrl);
     }
+
+    if (!meta) meta = await resolveProjectFromSeoPath(supabase, pathname, targetUrl);
 
     // Fallback to static map, then to default
     if (!meta) meta = resolveStatic(pathname, targetUrl);
@@ -429,16 +512,16 @@ Deno.serve(async (req) => {
       });
     }
 
+    const responseHeaders = new Headers(corsHeaders);
+    responseHeaders.set("Content-Type", "text/html; charset=utf-8");
+    responseHeaders.set("Cache-Control", cacheControl);
+    responseHeaders.set("ETag", etag);
+    responseHeaders.set("Vary", "User-Agent");
+    if (lastModified) responseHeaders.set("Last-Modified", lastModified);
+
     return new Response(renderHtml(meta), {
       status: 200,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": cacheControl,
-        ETag: etag,
-        Vary: "User-Agent",
-        ...(lastModified ? { "Last-Modified": lastModified } : {}),
-      },
+      headers: responseHeaders,
     });
   } catch (err) {
     console.error("og-preview error:", err);
@@ -449,13 +532,13 @@ Deno.serve(async (req) => {
       image: DEFAULT_IMAGE,
       url: SITE_ORIGIN,
     });
+    const fallbackHeaders = new Headers(corsHeaders);
+    fallbackHeaders.set("Content-Type", "text/html; charset=utf-8");
+    fallbackHeaders.set("Cache-Control", "no-store");
+
     return new Response(fallback, {
       status: 200,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "no-store",
-      },
+      headers: fallbackHeaders,
     });
   }
 });
