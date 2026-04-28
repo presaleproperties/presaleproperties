@@ -49,6 +49,42 @@ Deno.serve(async (req) => {
 
     const pitch_deck_url = deck?.slug ? `${SITE_BASE}/deck/${deck.slug}` : null;
 
+    // ── Structured incentives helpers ──────────────────────────────────────
+    const escapeHtml = (s: string) =>
+      String(s).replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!)
+      );
+    const formatCadDollars = (n: number) =>
+      new Intl.NumberFormat("en-CA", {
+        style: "currency",
+        currency: "CAD",
+        maximumFractionDigits: 0,
+      }).format(n);
+
+    const incentivesArr = Array.isArray(project.incentives_jsonb) ? project.incentives_jsonb : [];
+    const incentivesTotal = incentivesArr.reduce(
+      (sum: number, item: any) => sum + (Number(item?.value_dollars) || 0),
+      0,
+    );
+    const incentives_total_formatted = incentivesTotal > 0 ? formatCadDollars(incentivesTotal) : null;
+
+    let incentives_html: string | null = null;
+    if (incentivesArr.length > 0) {
+      const lis = incentivesArr
+        .map((item: any) => {
+          const label = escapeHtml(item?.label ?? "");
+          const value = Number(item?.value_dollars) || 0;
+          const valueStr = value > 0 ? ` <strong>(${escapeHtml(formatCadDollars(value))})</strong>` : "";
+          return `<li>${label}${valueStr}</li>`;
+        })
+        .join("");
+      incentives_html = `<ul>${lis}</ul>`;
+    } else if (typeof project.incentives === "string" && project.incentives.trim().length > 0) {
+      incentives_html = `<p>${escapeHtml(project.incentives.trim())}</p>`;
+    }
+
+    const roi_analysis_url = `${SITE_BASE}/${project.slug}?roi=1`;
+
     return bridgeJson({
       project: {
         ...project,
@@ -59,6 +95,13 @@ Deno.serve(async (req) => {
         first_floorplan_url: Array.isArray(project.floorplan_files) ? project.floorplan_files[0] ?? null : null,
         first_pricing_sheet_url: Array.isArray(project.pricing_sheets) ? project.pricing_sheets[0] ?? null : null,
         first_brochure_url: Array.isArray(project.brochure_files) ? project.brochure_files[0] ?? null : null,
+        // Structured Project Showcase fields for DealzFlow email rendering
+        incentives_jsonb: incentivesArr,
+        incentives_html,
+        incentives_total_formatted,
+        deposit_structure: project.deposit_structure ?? null,
+        roi_summary: project.roi_summary ?? null,
+        roi_analysis_url,
       },
     });
   } catch (e) {

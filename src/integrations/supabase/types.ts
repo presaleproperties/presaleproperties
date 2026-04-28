@@ -3553,6 +3553,7 @@ export type Database = {
           id: string
           incentives: string | null
           incentives_available: boolean | null
+          incentives_jsonb: Json
           info_source: string | null
           is_featured: boolean
           is_indexed: boolean
@@ -3570,6 +3571,7 @@ export type Database = {
           project_type: Database["public"]["Enums"]["project_type"]
           published_at: string | null
           rental_restrictions: string | null
+          roi_summary: string | null
           seo_description: string | null
           seo_title: string | null
           short_description: string | null
@@ -3606,6 +3608,7 @@ export type Database = {
           id?: string
           incentives?: string | null
           incentives_available?: boolean | null
+          incentives_jsonb?: Json
           info_source?: string | null
           is_featured?: boolean
           is_indexed?: boolean
@@ -3623,6 +3626,7 @@ export type Database = {
           project_type?: Database["public"]["Enums"]["project_type"]
           published_at?: string | null
           rental_restrictions?: string | null
+          roi_summary?: string | null
           seo_description?: string | null
           seo_title?: string | null
           short_description?: string | null
@@ -3659,6 +3663,7 @@ export type Database = {
           id?: string
           incentives?: string | null
           incentives_available?: boolean | null
+          incentives_jsonb?: Json
           info_source?: string | null
           is_featured?: boolean
           is_indexed?: boolean
@@ -3676,6 +3681,7 @@ export type Database = {
           project_type?: Database["public"]["Enums"]["project_type"]
           published_at?: string | null
           rental_restrictions?: string | null
+          roi_summary?: string | null
           seo_description?: string | null
           seo_title?: string | null
           short_description?: string | null
