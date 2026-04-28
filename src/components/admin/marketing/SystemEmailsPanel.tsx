@@ -14,7 +14,7 @@
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Eye, Sparkles, Code2, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -152,20 +152,26 @@ export function SystemEmailsPanel() {
       </div>
 
       <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col p-0">
-          <DialogHeader className="p-4 border-b">
+        <DialogContent className="max-w-4xl w-[95vw] h-[92vh] max-h-[92vh] overflow-hidden flex flex-col p-0 gap-0">
+          <DialogHeader className="p-4 border-b shrink-0 space-y-1">
             <DialogTitle className="text-sm">{preview?.name}</DialogTitle>
-            {preview?.subject && (
-              <p className="text-xs text-muted-foreground">Subject: {preview.subject}</p>
+            <DialogDescription className="text-xs text-muted-foreground">
+              {preview?.subject ? `Subject: ${preview.subject}` : "Email preview"}
+            </DialogDescription>
+            {preview?.edgeFunction && (
+              <p className="text-[10px] text-muted-foreground/70 font-mono flex items-center gap-1 pt-1">
+                <Code2 className="h-2.5 w-2.5" /> {preview.edgeFunction}
+              </p>
             )}
           </DialogHeader>
-          <div className="flex-1 overflow-auto bg-muted/20">
+          <div className="flex-1 overflow-hidden bg-[#faf8f4] min-h-0">
             {preview && (
               <iframe
+                key={preview.key}
                 srcDoc={preview.html}
                 title={preview.name}
-                className="w-full h-[75vh] bg-white"
-                sandbox=""
+                className="w-full h-full bg-[#faf8f4] border-0 block"
+                sandbox="allow-same-origin allow-popups"
               />
             )}
           </div>
