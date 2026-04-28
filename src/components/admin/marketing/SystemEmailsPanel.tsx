@@ -104,8 +104,38 @@ export function SystemEmailsPanel() {
         {templates.map((t) => (
           <div
             key={t.key}
-            className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/40 transition-colors flex flex-col"
+            className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:shadow-md transition-all flex flex-col group"
           >
+            {/* Thumbnail preview of actual email */}
+            <button
+              type="button"
+              onClick={() => setPreview(t)}
+              className="relative w-full h-48 bg-[#faf8f4] overflow-hidden border-b border-border block"
+              aria-label={`Preview ${t.name}`}
+            >
+              <div
+                className="absolute top-0 left-0 origin-top-left pointer-events-none"
+                style={{
+                  width: "600px",
+                  transform: "scale(0.5)",
+                  height: "960px",
+                }}
+              >
+                <iframe
+                  srcDoc={t.html}
+                  title={`${t.name} thumbnail`}
+                  className="w-[600px] h-[960px] border-0 bg-[#faf8f4] block"
+                  sandbox="allow-same-origin"
+                  scrolling="no"
+                  tabIndex={-1}
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
+                <div className="bg-background/95 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 shadow-sm">
+                  <Eye className="h-3.5 w-3.5" /> Click to expand
+                </div>
+              </div>
+            </button>
             <div className="p-4 flex-1 space-y-2.5">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-1.5">
