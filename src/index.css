@@ -1077,6 +1077,10 @@ html {
   background-color: hsl(var(--background));
   /* Prevent iOS rubber-band background flash during modal transitions */
   overscroll-behavior-y: none;
+  /* Reserve scrollbar space at all times so opening a modal (which removes
+     the scrollbar via overflow:hidden) does NOT shift fixed/sticky elements
+     or full-bleed sections. Falls back gracefully where unsupported. */
+  scrollbar-gutter: stable;
 }
 
 /* Touch devices: no scrollbar exists, so don't compensate for it */
@@ -1088,8 +1092,11 @@ html {
 }
 
 /* When Radix locks scroll, ensure body stays visually anchored.
-   No !important — ScrollLockSafety component must be able to clear stale locks. */
+   With scrollbar-gutter:stable on <html>, Radix's inline padding-right
+   compensation is unnecessary and actually causes a shift — neutralize it. */
 body[data-scroll-locked] {
   overflow: hidden;
   overscroll-behavior: contain;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
 }
