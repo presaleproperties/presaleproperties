@@ -408,6 +408,8 @@ Deno.serve(async (req) => {
       const RESOURCE_MAP: Record<string, string> = {
         "presale-projects": "project",
         projects: "project",
+        properties: "listing",
+        assignments: "assignment",
         listings: "listing",
         resale: "listing",
         blog: "blog_post",
@@ -443,10 +445,14 @@ Deno.serve(async (req) => {
       meta = await resolveProject(supabase, segments[1], targetUrl);
     } else if (segments[0] === "projects" && segments[1]) {
       meta = await resolveProject(supabase, segments[1], targetUrl);
+    } else if (segments[0] === "assignments" && segments[1]) {
+      meta = await resolveListing(supabase, segments[1], targetUrl);
+    } else if (segments[0] === "properties" && segments[1]) {
+      meta = await resolveResale(supabase, segments[1], targetUrl);
     } else if (segments[0] === "listings" && segments[1]) {
       meta = await resolveListing(supabase, segments[1], targetUrl);
     } else if (segments[0] === "resale" && segments[1]) {
-      meta = await resolveListing(supabase, segments[1], targetUrl);
+      meta = await resolveResale(supabase, segments[1], targetUrl);
     } else if (segments[0] === "blog" && segments[1] && segments[1] !== "category") {
       meta = await resolveBlog(supabase, segments[1], targetUrl);
     } else if (segments[0] === "deck" && segments[1]) {
@@ -454,6 +460,8 @@ Deno.serve(async (req) => {
     } else if (segments[0] === "developers" && segments[1]) {
       meta = await resolveDeveloper(supabase, segments[1], targetUrl);
     }
+
+    if (!meta) meta = await resolveProjectFromSeoPath(supabase, pathname, targetUrl);
 
     // Fallback to static map, then to default
     if (!meta) meta = resolveStatic(pathname, targetUrl);
