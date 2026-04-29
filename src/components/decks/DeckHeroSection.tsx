@@ -58,7 +58,7 @@ export function DeckHeroSection({
             className="w-full h-full object-cover"
             style={{ objectPosition: 'center 30%' }}
             loading="eager"
-            fetchPriority="high"
+            {...({ fetchpriority: "high" } as any)}
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80" />

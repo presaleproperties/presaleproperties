@@ -300,10 +300,16 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const { latitude, longitude } = pos.coords;
-          
+          // Bail if map was destroyed while waiting for geolocation
+          if (mapRef.current !== map) return;
+          try {
+            const c = map.getContainer();
+            if (!c || !document.body.contains(c)) return;
+          } catch { return; }
+
           if (latitude > 48 && latitude < 51 && longitude > -125 && longitude < -120) {
-            map.setView([latitude, longitude], 12, { animate: true });
-            
+            try { map.setView([latitude, longitude], 12, { animate: false }); } catch { return; }
+
             if (userCircleRef.current) userCircleRef.current.remove();
             userCircleRef.current = L.circle([latitude, longitude], {
               radius: 500,
@@ -377,8 +383,14 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     // 1. User location circle isn't showing (meaning we didn't auto-locate)
     // 2. No initial center was provided (meaning we're not deep-linking to a specific project)
     if (mappedProjects.length > 0 && !userCircleRef.current && !initialCenter) {
-      const bounds = L.latLngBounds(mappedProjects.map((p) => [p.lat, p.lng] as [number, number]));
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+      try {
+        const c = map.getContainer();
+        if (!c || !document.body.contains(c)) return;
+        const bounds = L.latLngBounds(mappedProjects.map((p) => [p.lat, p.lng] as [number, number]));
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14, animate: false });
+      } catch (e) {
+        console.warn('fitBounds skipped:', e);
+      }
     }
   }, [mappedProjects, onProjectSelect, initialCenter]);
 
@@ -415,7 +427,12 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        map.setView([latitude, longitude], 13, { animate: true });
+        if (mapRef.current !== map) return;
+        try {
+          const c = map.getContainer();
+          if (!c || !document.body.contains(c)) return;
+        } catch { return; }
+        try { map.setView([latitude, longitude], 13, { animate: false }); } catch { return; }
 
         if (userCircleRef.current) userCircleRef.current.remove();
 
