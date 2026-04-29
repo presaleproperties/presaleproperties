@@ -31,10 +31,22 @@ export function PresaleProjectsSlugDispatcher() {
       }
       try {
         const previewToken = searchParams.get("preview");
+
+        // 1. Check the redirect table first — old slugs (with parens / accents)
+        //    that were renamed to URL-safe versions.
+        const { data: redirect } = await supabase
+          .from("project_slug_redirects")
+          .select("new_slug")
+          .eq("old_slug", citySlug)
+          .maybeSingle();
+
+        const effectiveSlug = redirect?.new_slug || citySlug;
+
+        // 2. Look up the project by (possibly remapped) slug
         let query = supabase
           .from("presale_projects")
           .select("slug, neighborhood, city, project_type, is_published")
-          .eq("slug", citySlug);
+          .eq("slug", effectiveSlug);
         if (!previewToken) query = query.eq("is_published", true);
 
         const { data: project } = await query.maybeSingle();
