@@ -14,6 +14,7 @@ import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
 import { GlobalPullToRefresh } from "@/components/GlobalPullToRefresh";
 import { ResaleToPropertiesRedirect } from "@/components/redirects/ResaleToPropertiesRedirect";
 import { PresaleProjectSEORedirect } from "@/components/redirects/PresaleProjectSEORedirect";
+import { PresaleProjectsSlugDispatcher } from "@/components/redirects/PresaleProjectsSlugDispatcher";
 import { CityPresaleSEORedirect } from "@/components/redirects/CityPresaleSEORedirect";
 import { BlogsRedirect } from "@/components/redirects/BlogsRedirect";
 import { PropertiesCleanupRedirect } from "@/components/redirects/PropertiesSpaceRedirect";
@@ -233,7 +234,8 @@ const App = () => (
             <Route path="/presale-incentives" element={<PresaleIncentivesPage />} />
             {/* NEW SEO URL Structure: /presale-projects/{city}/{type}/{price} */}
             <Route path="/presale-projects/:citySlug/:typePriceSlug" element={<PresaleCityTypePricePage />} />
-            <Route path="/presale-projects/:citySlug" element={<PresaleCityHubPage />} />
+            {/* Smart dispatch: project slug → 301 to SEO URL; otherwise city hub. Rescues legacy share links. */}
+            <Route path="/presale-projects/:citySlug" element={<PresaleProjectsSlugDispatcher />} />
             {/* SEO Redirect: /presale-projects/:slug -> /{neighborhood}-presale-{type}-{slug} */}
             {/* Legacy route redirect - redirect /presale/:slug to SEO URL */}
             <Route path="/presale/:slug" element={<PresaleProjectSEORedirect />} />
