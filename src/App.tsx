@@ -14,6 +14,7 @@ import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
 import { GlobalPullToRefresh } from "@/components/GlobalPullToRefresh";
 import { ResaleToPropertiesRedirect } from "@/components/redirects/ResaleToPropertiesRedirect";
 import { PresaleProjectSEORedirect } from "@/components/redirects/PresaleProjectSEORedirect";
+import { PresaleProjectsSlugDispatcher } from "@/components/redirects/PresaleProjectsSlugDispatcher";
 import { CityPresaleSEORedirect } from "@/components/redirects/CityPresaleSEORedirect";
 import { BlogsRedirect } from "@/components/redirects/BlogsRedirect";
 import { PropertiesCleanupRedirect } from "@/components/redirects/PropertiesSpaceRedirect";
