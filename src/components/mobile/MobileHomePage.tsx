@@ -345,17 +345,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </button>
           </div>
 
-          {/* Trust mini-strip — minimal on mobile, slightly fuller on tablet */}
-          <div className="mt-3 pointer-events-auto px-2">
-            <p
-              className="text-[11px] sm:text-xs text-on-dark/90 text-center tracking-wide"
-              style={{ textShadow: "0 1px 8px rgba(0,0,0,0.55)" }}
-            >
-              <span className="font-bold text-on-dark">400+ clients served</span>
-              <span className="mx-1.5 text-on-dark/40">·</span>
-              <span className="font-bold text-on-dark">5 yrs in presale</span>
-            </p>
-          </div>
 
         </div>
       </div>
