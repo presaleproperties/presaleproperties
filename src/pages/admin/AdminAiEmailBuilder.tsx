@@ -133,7 +133,7 @@ function buildFinalHtml(
   const wrap = (h: string) => withEmailHeader(h, showHeader !== false);
   // ── RECOMMENDATION template (Catalogue V2 — auto behavior-triggered) ──────
   if (layoutVersion === "recommendation") {
-    return buildRecommendationEmailHtml({
+    return wrap(buildRecommendationEmailHtml({
       subjectLine: fields.subjectLine || "Recommended for you",
       previewText: fields.previewText || "Hand-picked presales matched to your interests.",
       headline: fields.headline || "Presales picked for you",
