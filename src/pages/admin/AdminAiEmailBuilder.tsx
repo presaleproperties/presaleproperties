@@ -2815,6 +2815,16 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 doneLabel={[selectedFont.label, selectedAgent.full_name.split(" ")[0]].join(" · ")}
                 defaultOpen={false}
               >
+                {/* Email header (logo + Presale Properties wordmark) */}
+                <p className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider mb-1">Email Header</p>
+                <div className="flex items-center justify-between mb-3 px-2 py-2 rounded border border-border/40 bg-muted/30">
+                  <div className="space-y-0.5">
+                    <Label className="text-[11px] font-medium">Show brand header</Label>
+                    <p className="text-[10px] text-muted-foreground">Logo + "Presale Properties" bar at the top of the email</p>
+                  </div>
+                  <Switch checked={showHeader} onCheckedChange={setShowHeader} />
+                </div>
+
                 {/* CTA toggles + document URLs */}
                 <p className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider mb-1">CTA Buttons</p>
                 <div className="space-y-2 mb-3">
