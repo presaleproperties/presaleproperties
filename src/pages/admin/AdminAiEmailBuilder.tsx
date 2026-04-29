@@ -550,6 +550,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [showBookShowingCta,   setShowBookShowingCta]   = useState<boolean>(savedDraft?.showBookShowingCta ?? false);
   const [showInterestedCta,    setShowInterestedCta]    = useState<boolean>(savedDraft?.showInterestedCta ?? true);
   const [interestedWhatsapp,   setInterestedWhatsapp]   = useState<string>(savedDraft?.interestedWhatsapp ?? "16722581100");
+  const [showHeader,           setShowHeader]           = useState<boolean>(savedDraft?.showHeader ?? true);
   const ctaToggles = { showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta };
 
   // Campaign assets
