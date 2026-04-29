@@ -189,7 +189,7 @@ function buildFinalHtml(
       bookShowingUrl,
       interestedWhatsapp,
       ...ctaToggles,
-    }, agent);
+    }, agent));
   }
   // ── MODERN / Lululemon template ───────────────────────────────────────────
   if (layoutVersion === "modern") {
