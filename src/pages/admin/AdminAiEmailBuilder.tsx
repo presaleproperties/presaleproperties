@@ -128,7 +128,9 @@ function buildFinalHtml(
   recommendationProjects?: RecommendationProject[],
   recommendationGroupByCategory?: boolean,
   recommendationContext?: string,
+  showHeader?: boolean,
 ): string {
+  const wrap = (h: string) => withEmailHeader(h, showHeader !== false);
   // ── RECOMMENDATION template (Catalogue V2 — auto behavior-triggered) ──────
   if (layoutVersion === "recommendation") {
     return buildRecommendationEmailHtml({
