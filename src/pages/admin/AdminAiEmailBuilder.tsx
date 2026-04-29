@@ -144,7 +144,7 @@ function buildFinalHtml(
       groupByCategory: !!recommendationGroupByCategory,
       agent,
       city: recommendationProjects?.[0]?.city,
-    });
+    }));
   }
 
   // ── CATALOGUE template (multi-project picker) ─────────────────────────────
