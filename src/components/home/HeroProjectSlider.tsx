@@ -107,7 +107,7 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
             className="absolute inset-0 w-full h-full object-cover"
             loading={i <= 1 ? "eager" : "lazy"}
             decoding={i === 0 ? "sync" : "async"}
-            {...(i === 0 ? { width: 1920, height: 1080, fetchPriority: "high" as const } : {})}
+            {...(i === 0 ? { width: 1920, height: 1080, fetchpriority: "high" as any } : {})}
           />
         </div>
       ))}
