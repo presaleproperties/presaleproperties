@@ -47,6 +47,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { buildAiEmailHtml, buildLululemonEmailHtml, buildModernV2EmailHtml, buildEditorialEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { withEmailHeader } from "@/lib/emailHeader";
 import { generateProjectUrl } from "@/lib/seoUrls";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
