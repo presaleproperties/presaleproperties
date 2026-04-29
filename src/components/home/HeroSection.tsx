@@ -345,22 +345,6 @@ export function HeroSection({
             </Link>
           </div>
 
-          {/* Trust stats — minimal premium row */}
-          <div className="relative z-[1] mt-7 pointer-events-auto">
-            <div className="flex flex-wrap items-center justify-center gap-x-5 sm:gap-x-8 gap-y-2 text-on-dark/90">
-              {TRUST_STATS.map((stat, i) => (
-                <div key={stat.label} className="flex items-center gap-2">
-                  {i > 0 && <span className="hidden sm:inline-block h-3 w-px bg-on-dark/25" />}
-                  <span className="font-bold text-sm sm:text-base text-on-dark drop-shadow" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}>
-                    {stat.value}
-                  </span>
-                  <span className="text-[11px] sm:text-xs text-on-dark/75 uppercase tracking-wide" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}>
-                    {stat.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
