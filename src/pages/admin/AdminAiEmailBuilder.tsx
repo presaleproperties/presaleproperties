@@ -197,7 +197,7 @@ function buildFinalHtml(
     const slides = (loopSlides && loopSlides.length > 0)
       ? loopSlides.filter(Boolean)
       : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
-    return buildLululemonEmailHtml({
+    return wrap(buildLululemonEmailHtml({
       projectName:    fields.projectName || "",
       city:           fields.city,
       developerName:  fields.developerName,
