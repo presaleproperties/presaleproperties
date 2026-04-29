@@ -292,11 +292,6 @@ export default function LpProjectPage() {
 
               {/* Social proof strip — directly under the form per spec */}
               <div className="mt-4 rounded-xl bg-background/95 backdrop-blur border border-border/60 px-4 py-3 flex items-center justify-center gap-3 text-[11px] sm:text-xs font-semibold text-foreground">
-                <span className="inline-flex items-center gap-1">
-                  <Star className="h-3.5 w-3.5 fill-primary text-primary" />
-                  5.0 Google
-                </span>
-                <span className="text-muted-foreground">·</span>
                 <span>400+ Families Helped</span>
                 <span className="text-muted-foreground">·</span>
                 <span>$200M+ Sold</span>
