@@ -375,6 +375,8 @@ export function leadToCrmBridgeBody(lead: CanonicalLead): Record<string, any> {
     persona: lead.persona,
     intent_score: lead.intent_score,
     project: lead.project,
+    // CRM `crm_contacts.projects` column is NOT NULL — always send an array.
+    projects: lead.project?.name ? [lead.project.name] : [],
     payload: {
       ...(lead.extras ?? {}),
       message: lead.message,

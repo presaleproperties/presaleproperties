@@ -558,7 +558,8 @@ serve(async (req: Request): Promise<Response> => {
           campaign_source: lead.utm_campaign || undefined,
           referral_source: lead.referrer || undefined,
           project: project?.name || undefined,
-          projects: project?.name ? [project.name] : undefined,
+          // CRM `crm_contacts.projects` is NOT NULL — always send an array (empty if no project).
+          projects: project?.name ? [project.name] : [],
           city: project?.city || undefined,
           province: "BC",
           marketing_consent: true,
