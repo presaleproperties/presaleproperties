@@ -149,7 +149,7 @@ function buildFinalHtml(
 
   // ── CATALOGUE template (multi-project picker) ─────────────────────────────
   if (layoutVersion === "catalogue") {
-    return buildCatalogueEmailHtml({
+    return wrap(buildCatalogueEmailHtml({
       subjectLine: fields.subjectLine || "Curated Presale Projects For You",
       previewText: fields.previewText || "Hand-picked presale opportunities just for you.",
       headline: fields.headline || "A few projects I think you'll love",
