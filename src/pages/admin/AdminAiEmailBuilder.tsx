@@ -157,7 +157,7 @@ function buildFinalHtml(
       projects: catalogueProjects || [],
       agent,
       city: catalogueProjects?.[0]?.city,
-    });
+    }));
   }
 
   // ── EDITORIAL template ────────────────────────────────────────────────────
