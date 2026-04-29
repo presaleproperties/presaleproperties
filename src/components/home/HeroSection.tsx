@@ -334,7 +334,7 @@ export function HeroSection({
               onClick={() => setModalOpen(true)}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 active:scale-95 transition-all shadow-[0_8px_24px_-6px_hsl(40_65%_45%/0.55)]"
             >
-              ✨ Get VIP Pricing — Free
+              Get VIP Pricing — Free
             </button>
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}

@@ -341,7 +341,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               onClick={() => setMobileModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold active:scale-95 transition-all shadow-[0_8px_24px_-6px_hsl(40_65%_45%/0.55)]"
             >
-              ✨ Get VIP Pricing — Free
+              Get VIP Pricing — Free
             </button>
           </div>
 
