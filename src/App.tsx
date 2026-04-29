@@ -35,7 +35,7 @@ import { EmailAttributionCapture } from "@/components/tracking/EmailAttributionC
 import { PixelHealthCheck } from "@/components/tracking/PixelHealthCheck";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
-import { RequestACallPopup } from "@/components/conversion/RequestACallPopup";
+
 
 import { PropertiesSlugDispatcher } from "@/components/routing/PropertiesSlugDispatcher";
 import { Suspense, lazy } from "react";
@@ -222,9 +222,12 @@ const App = () => (
             <EmailAttributionCapture />
             <PixelHealthCheck />
             
-            {/* <ExitIntentPopup /> - Temporarily hidden */}
+            {/* Single auto-popup — exit intent only. RequestACallPopup removed
+                to prevent popup fatigue (was firing on 3rd pageview alongside
+                exit intent + sticky bar + floating WhatsApp). Users can still
+                request a call via the StickyConversionBar, FloatingWhatsApp,
+                ConversionHeader CTA, and inline lead magnets. */}
             <ExitIntentPopup />
-            <RequestACallPopup />
           <Suspense fallback={<PageFallback />}>
           <Routes>
             {/* Public Routes */}
