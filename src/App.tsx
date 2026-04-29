@@ -233,7 +233,8 @@ const App = () => (
             <Route path="/presale-incentives" element={<PresaleIncentivesPage />} />
             {/* NEW SEO URL Structure: /presale-projects/{city}/{type}/{price} */}
             <Route path="/presale-projects/:citySlug/:typePriceSlug" element={<PresaleCityTypePricePage />} />
-            <Route path="/presale-projects/:citySlug" element={<PresaleCityHubPage />} />
+            {/* Smart dispatch: project slug → 301 to SEO URL; otherwise city hub. Rescues legacy share links. */}
+            <Route path="/presale-projects/:citySlug" element={<PresaleProjectsSlugDispatcher />} />
             {/* SEO Redirect: /presale-projects/:slug -> /{neighborhood}-presale-{type}-{slug} */}
             {/* Legacy route redirect - redirect /presale/:slug to SEO URL */}
             <Route path="/presale/:slug" element={<PresaleProjectSEORedirect />} />
