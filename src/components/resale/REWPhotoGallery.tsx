@@ -508,7 +508,7 @@ export function REWPhotoGallery({
                             className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.01] will-change-transform backface-visibility-hidden"
                             loading={i < 6 ? "eager" : "lazy"}
                             decoding={i < 6 ? "sync" : "async"}
-                            fetchPriority={i < 4 ? "high" : "auto"}
+                            {...{ fetchpriority: i < 4 ? "high" : "auto" } as any}
                             sizes="(max-width: 768px) 100vw, 50vw"
                             style={{ 
                               transform: 'translateZ(0)',
