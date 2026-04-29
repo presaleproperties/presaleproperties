@@ -328,7 +328,7 @@ function buildFinalHtml(
       html = html.replace("<!-- ─── AGENT CARD", block + "\n  <!-- ─── AGENT CARD");
     }
   }
-  return html;
+  return wrap(html);
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
