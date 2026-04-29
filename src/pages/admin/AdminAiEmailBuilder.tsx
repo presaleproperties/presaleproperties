@@ -716,6 +716,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (d.showCallNowCta !== undefined) setShowCallNowCta(d.showCallNowCta);
     if (d.showInterestedCta !== undefined) setShowInterestedCta(d.showInterestedCta);
     if (d.interestedWhatsapp !== undefined) setInterestedWhatsapp(d.interestedWhatsapp);
+    if (d.showHeader !== undefined) setShowHeader(d.showHeader);
     if (d.selAgent) setSelAgent(d.selAgent);
     if (d.fontId) setSelectedFontId(d.fontId);
     if (d.layoutVersion) setLayoutVersion(d.layoutVersion);
