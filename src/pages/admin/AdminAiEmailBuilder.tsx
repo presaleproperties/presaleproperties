@@ -958,7 +958,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
-    showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
+    showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp, showHeader,
     dbDraftLoading, catalogueProjects, recommendationProjects, recommendationGroupByCategory, recommendationContext,
   ]); // eslint-disable-line
 
