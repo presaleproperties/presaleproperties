@@ -2,7 +2,7 @@
 // Inspired by the lululemon header reference. Email-safe (table-based, inline styles).
 
 const LOGO_EMAIL_URL =
-  "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Flogo-email.png";
+  "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/brand%2Femail-header-logo.png";
 
 /**
  * Returns an email-safe header bar HTML block.
@@ -16,9 +16,9 @@ export function buildEmailHeaderHtml(): string {
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%;">
         <tr>
           <td align="left" valign="middle" style="padding:14px 24px;width:50%;">
-            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" height="32" style="display:block;height:32px;width:auto;border:0;outline:none;text-decoration:none;" />
+            <img src="${LOGO_EMAIL_URL}" alt="Presale Properties" width="40" height="40" style="display:block;width:40px;height:40px;border:0;outline:none;text-decoration:none;" />
           </td>
-          <td align="right" valign="middle" style="padding:14px 24px;width:50%;font-family:'Plus Jakarta Sans','DM Sans',Helvetica,Arial,sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.01em;color:#0d1f18;line-height:1;">
+          <td align="right" valign="middle" style="padding:14px 24px;width:50%;font-family:'Plus Jakarta Sans','DM Sans',Helvetica,Arial,sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.02em;color:#0d1f18;line-height:1;">
             Presale Properties
           </td>
         </tr>
