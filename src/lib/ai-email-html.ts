@@ -216,7 +216,7 @@ function buildAiFinalHtml({
         `  <!-- ─── HERO IMAGE ─── -->
   <tr>
     <td style="padding:0;line-height:0;font-size:0;">
-      <img src="${heroImage}" alt="${fields.projectName || "Project"}" width="600"
+      <img src="${heroImage}" alt="${fields.projectName || "Project"}" width="600" height="400" loading="eager" decoding="async" fetchpriority="high"
            style="display:block;width:100%;max-width:600px;height:auto;" />
     </td>
   </tr>
