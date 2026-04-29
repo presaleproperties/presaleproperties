@@ -228,7 +228,7 @@ function buildFinalHtml(
       bookShowingUrl,
       interestedWhatsapp,
       ...ctaToggles,
-    }, agent);
+    }, agent));
   }
   // ── MODERN V2 template ────────────────────────────────────────────────────
   if (layoutVersion === "modern-v2") {
