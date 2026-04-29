@@ -267,7 +267,7 @@ function buildFinalHtml(
       bookShowingUrl,
       interestedWhatsapp,
       ...ctaToggles,
-    }, agent);
+    }, agent));
   }
   // ── CLASSIC template ───────────────────────────────────────────────────────
   // Headline always shows in the body — never suppressed
