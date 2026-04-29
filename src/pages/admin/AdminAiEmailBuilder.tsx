@@ -935,7 +935,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
-        showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
+        showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp, showHeader,
         catalogueProjects,
         recommendationProjects, recommendationGroupByCategory, recommendationContext,
       };
