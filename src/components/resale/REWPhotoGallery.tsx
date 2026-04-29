@@ -291,7 +291,7 @@ export function REWPhotoGallery({
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 66vw, 900px"
               loading="eager"
               decoding="sync"
-              fetchpriority="high"
+              {...({ fetchpriority: "high" } as any)}
             />
             
             {/* Photo counter badge - hidden on mobile (dots shown instead), visible on tablet/desktop */}
@@ -587,7 +587,7 @@ export function REWPhotoGallery({
                   alt={photos[zoomedIndex]?.alt || `${alt} - Photo ${zoomedIndex + 1}`}
                   className="max-w-full max-h-full object-contain select-none"
                   loading="eager"
-                  fetchpriority="high"
+                  {...({ fetchpriority: "high" } as any)}
                   sizes="100vw"
                   style={{
                     transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,

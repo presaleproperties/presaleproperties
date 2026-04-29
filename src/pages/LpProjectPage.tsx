@@ -233,7 +233,7 @@ export default function LpProjectPage() {
                 alt={project.name}
                 className="w-full h-full object-cover"
                 loading="eager"
-                fetchpriority="high"
+                {...({ fetchpriority: "high" } as any)}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-muted to-muted/70" />
