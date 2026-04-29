@@ -9,6 +9,7 @@ import {
   type AgentInfo,
   type EmailFontPairing,
 } from "@/components/admin/AiEmailTemplate";
+import { withEmailHeader } from "@/lib/emailHeader";
 
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
   Uzair: { phone: "778-231-3592", email: "info@presaleproperties.com" },
@@ -274,7 +275,7 @@ export function buildAiTemplateHtmlFromFormData(formData: any, agentOverride?: P
   const agent = getAgentForTemplate(formData?.selAgent, agentOverride);
   const { deckUrl, deckParking, deckLocker } = getSavedDeckMeta(formData);
 
-  return buildAiFinalHtml({
+  const html = buildAiFinalHtml({
     fields,
     agent,
     heroImage: formData?.heroImage || "",
@@ -298,6 +299,10 @@ export function buildAiTemplateHtmlFromFormData(formData: any, agentOverride?: P
     showInterestedCta: formData?.showInterestedCta,
     interestedWhatsapp: formData?.interestedWhatsapp,
   });
+
+  // Apply optional brand header (logo + wordmark) if enabled in the saved template.
+  // Default ON when the field is missing, to match the builder default.
+  return withEmailHeader(html, formData?.showHeader !== false);
 }
 
 export function personalizeTemplateHtml(html: string, recipientFirstName?: string): string {

@@ -47,6 +47,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { buildAiEmailHtml, buildLululemonEmailHtml, buildModernV2EmailHtml, buildEditorialEmailHtml, type AiEmailCopy, type AgentInfo, DEFAULT_AGENT, EMAIL_FONT_PAIRINGS, type EmailFontPairing } from "@/components/admin/AiEmailTemplate";
+import { withEmailHeader } from "@/lib/emailHeader";
 import { generateProjectUrl } from "@/lib/seoUrls";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -127,10 +128,12 @@ function buildFinalHtml(
   recommendationProjects?: RecommendationProject[],
   recommendationGroupByCategory?: boolean,
   recommendationContext?: string,
+  showHeader?: boolean,
 ): string {
+  const wrap = (h: string) => withEmailHeader(h, showHeader !== false);
   // ── RECOMMENDATION template (Catalogue V2 — auto behavior-triggered) ──────
   if (layoutVersion === "recommendation") {
-    return buildRecommendationEmailHtml({
+    return wrap(buildRecommendationEmailHtml({
       subjectLine: fields.subjectLine || "Recommended for you",
       previewText: fields.previewText || "Hand-picked presales matched to your interests.",
       headline: fields.headline || "Presales picked for you",
@@ -141,12 +144,12 @@ function buildFinalHtml(
       groupByCategory: !!recommendationGroupByCategory,
       agent,
       city: recommendationProjects?.[0]?.city,
-    });
+    }));
   }
 
   // ── CATALOGUE template (multi-project picker) ─────────────────────────────
   if (layoutVersion === "catalogue") {
-    return buildCatalogueEmailHtml({
+    return wrap(buildCatalogueEmailHtml({
       subjectLine: fields.subjectLine || "Curated Presale Projects For You",
       previewText: fields.previewText || "Hand-picked presale opportunities just for you.",
       headline: fields.headline || "A few projects I think you'll love",
@@ -154,7 +157,7 @@ function buildFinalHtml(
       projects: catalogueProjects || [],
       agent,
       city: catalogueProjects?.[0]?.city,
-    });
+    }));
   }
 
   // ── EDITORIAL template ────────────────────────────────────────────────────
@@ -163,7 +166,7 @@ function buildFinalHtml(
     const slides = (loopSlides && loopSlides.length > 0)
       ? loopSlides.filter(Boolean)
       : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
-    return buildEditorialEmailHtml({
+    return wrap(buildEditorialEmailHtml({
       projectName:    fields.projectName || "",
       city:           fields.city,
       developerName:  fields.developerName,
@@ -186,7 +189,7 @@ function buildFinalHtml(
       bookShowingUrl,
       interestedWhatsapp,
       ...ctaToggles,
-    }, agent);
+    }, agent));
   }
   // ── MODERN / Lululemon template ───────────────────────────────────────────
   if (layoutVersion === "modern") {
@@ -194,7 +197,7 @@ function buildFinalHtml(
     const slides = (loopSlides && loopSlides.length > 0)
       ? loopSlides.filter(Boolean)
       : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
-    return buildLululemonEmailHtml({
+    return wrap(buildLululemonEmailHtml({
       projectName:    fields.projectName || "",
       city:           fields.city,
       developerName:  fields.developerName,
@@ -225,7 +228,7 @@ function buildFinalHtml(
       bookShowingUrl,
       interestedWhatsapp,
       ...ctaToggles,
-    }, agent);
+    }, agent));
   }
   // ── MODERN V2 template ────────────────────────────────────────────────────
   if (layoutVersion === "modern-v2") {
@@ -233,7 +236,7 @@ function buildFinalHtml(
     const slides = (loopSlides && loopSlides.length > 0)
       ? loopSlides.filter(Boolean)
       : [heroImage, ...(imageCards?.filter(c => c.url).map(c => c.url) ?? [])].filter(Boolean);
-    return buildModernV2EmailHtml({
+    return wrap(buildModernV2EmailHtml({
       projectName:    fields.projectName || "",
       city:           fields.city,
       developerName:  fields.developerName,
@@ -264,7 +267,7 @@ function buildFinalHtml(
       bookShowingUrl,
       interestedWhatsapp,
       ...ctaToggles,
-    }, agent);
+    }, agent));
   }
   // ── CLASSIC template ───────────────────────────────────────────────────────
   // Headline always shows in the body — never suppressed
@@ -325,7 +328,7 @@ function buildFinalHtml(
       html = html.replace("<!-- ─── AGENT CARD", block + "\n  <!-- ─── AGENT CARD");
     }
   }
-  return html;
+  return wrap(html);
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -547,6 +550,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
   const [showBookShowingCta,   setShowBookShowingCta]   = useState<boolean>(savedDraft?.showBookShowingCta ?? false);
   const [showInterestedCta,    setShowInterestedCta]    = useState<boolean>(savedDraft?.showInterestedCta ?? true);
   const [interestedWhatsapp,   setInterestedWhatsapp]   = useState<string>(savedDraft?.interestedWhatsapp ?? "16722581100");
+  const [showHeader,           setShowHeader]           = useState<boolean>(savedDraft?.showHeader ?? true);
   const ctaToggles = { showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta };
 
   // Campaign assets
@@ -712,6 +716,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (d.showCallNowCta !== undefined) setShowCallNowCta(d.showCallNowCta);
     if (d.showInterestedCta !== undefined) setShowInterestedCta(d.showInterestedCta);
     if (d.interestedWhatsapp !== undefined) setInterestedWhatsapp(d.interestedWhatsapp);
+    if (d.showHeader !== undefined) setShowHeader(d.showHeader);
     if (d.selAgent) setSelAgent(d.selAgent);
     if (d.fontId) setSelectedFontId(d.fontId);
     if (d.layoutVersion) setLayoutVersion(d.layoutVersion);
@@ -930,7 +935,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
         heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
         selectedAssetId, directCtaUrl, selAgent, fontId: selectedFontId,
         layoutVersion, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
-        showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
+        showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp, showHeader,
         catalogueProjects,
         recommendationProjects, recommendationGroupByCategory, recommendationContext,
       };
@@ -953,7 +958,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     heroImage, floorPlans, fpHeading, fpSubheading, imageCards, loopSlides, heroMode,
     selectedAssetId, directCtaUrl, selAgent, selectedFontId, layoutVersion,
     savedTemplateId, projectUrl, brochureUrl, floorplanUrl, pricingUrl, bookShowingUrl,
-    showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
+    showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp, showHeader,
     dbDraftLoading, catalogueProjects, recommendationProjects, recommendationGroupByCategory, recommendationContext,
   ]); // eslint-disable-line
 
@@ -986,7 +991,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
   // Debounced preview HTML
   const [previewHtml, setPreviewHtml] = useState(() =>
-    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined, recommendationProjects, recommendationGroupByCategory, recommendationContext)
+    buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined, recommendationProjects, recommendationGroupByCategory, recommendationContext, showHeader)
   );
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -994,14 +999,14 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
     if (campaignHtmlOverride) return;
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined, recommendationProjects, recommendationGroupByCategory, recommendationContext));
+      setPreviewHtml(buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined, recommendationProjects, recommendationGroupByCategory, recommendationContext, showHeader));
     }, 800);
     return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
-  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, pricingUrl, showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp, bookShowingUrl, campaignHtmlOverride, catalogueProjects, recommendationProjects, recommendationGroupByCategory, recommendationContext]);
+  }, [currentCopy, selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl, floorplanUrl, pricingUrl, showFloorPlansCta, showBrochureCta, showPricingCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp, bookShowingUrl, campaignHtmlOverride, catalogueProjects, recommendationProjects, recommendationGroupByCategory, recommendationContext, showHeader]);
 
   // finalHtml used only for copy/save — always reflects latest state
   // When campaignHtmlOverride is set (multi-project weeks), use it instead
-  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined, recommendationProjects, recommendationGroupByCategory, recommendationContext);
+  const baseFinalHtml = buildFinalHtml(currentCopy(), selectedAgent, heroImage, floorPlans, fpHeading, fpSubheading, ctaUrl, selectedFont, layoutVersion, imageCards, effectiveLoopSlides, brochureUrl || undefined, floorplanUrl || undefined, pricingUrl || undefined, ctaToggles, bookShowingUrl || undefined, catalogueProjects, interestedWhatsapp || undefined, recommendationProjects, recommendationGroupByCategory, recommendationContext, showHeader);
   const finalHtml = campaignHtmlOverride || baseFinalHtml;
 
   // Also update multi-project preview when body copy changes (live editing)
@@ -1530,7 +1535,7 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
       selAgent, fontId: selectedFontId, layoutVersion,
       showProjectName, showDeveloperName, customHeader, projectUrl, infoRows,
       brochureUrl, floorplanUrl, bookShowingUrl,
-      showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp,
+      showFloorPlansCta, showBrochureCta, showViewMorePlansCta, showCallNowCta, showBookShowingCta, showInterestedCta, interestedWhatsapp, showHeader,
       selProjectId,
       pricingUrl,
       ...savedDeckMeta,
@@ -2810,6 +2815,16 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
                 doneLabel={[selectedFont.label, selectedAgent.full_name.split(" ")[0]].join(" · ")}
                 defaultOpen={false}
               >
+                {/* Email header (logo + Presale Properties wordmark) */}
+                <p className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider mb-1">Email Header</p>
+                <div className="flex items-center justify-between mb-3 px-2 py-2 rounded border border-border/40 bg-muted/30">
+                  <div className="space-y-0.5">
+                    <Label className="text-[11px] font-medium">Show brand header</Label>
+                    <p className="text-[10px] text-muted-foreground">Logo + "Presale Properties" bar at the top of the email</p>
+                  </div>
+                  <Switch checked={showHeader} onCheckedChange={setShowHeader} />
+                </div>
+
                 {/* CTA toggles + document URLs */}
                 <p className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider mb-1">CTA Buttons</p>
                 <div className="space-y-2 mb-3">
