@@ -352,12 +352,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               style={{ textShadow: "0 1px 8px rgba(0,0,0,0.55)" }}
             >
               <span className="font-bold text-on-dark">400+ clients served</span>
-              <span className="hidden sm:inline">
-                <span className="mx-1.5 text-on-dark/40">·</span>
-                <span className="font-bold text-on-dark">5 yrs in presale</span>
-              </span>
               <span className="mx-1.5 text-on-dark/40">·</span>
-              <span className="font-bold text-on-dark">5.0★ Google</span>
+              <span className="font-bold text-on-dark">5 yrs in presale</span>
             </p>
           </div>
 

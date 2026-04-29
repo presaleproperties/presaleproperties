@@ -153,7 +153,6 @@ export function AboutHero() {
                   { value: "400+", label: "Units Sold" },
                   { value: "$200M+", label: "Sales Volume" },
                   { value: "5 Yrs", label: "In Presale Market" },
-                  { value: "5.0★", label: "Google Rating" },
                 ].map((s) => (
                   <div key={s.label} className="rounded-xl border border-card/10 bg-neutral-900/50 backdrop-blur-md p-4 text-center">
                     <div className="text-xl font-black text-primary leading-none">{s.value}</div>
@@ -166,12 +165,11 @@ export function AboutHero() {
           </div>
 
           {/* Stats — mobile/tablet: 2x2 grid */}
-          <div className="lg:hidden grid grid-cols-2 sm:grid-cols-4 gap-2 mt-8 rounded-xl overflow-hidden border border-card/10">
+          <div className="lg:hidden grid grid-cols-3 gap-2 mt-8 rounded-xl overflow-hidden border border-card/10">
             {[
               { value: "400+", label: "Units Sold" },
               { value: "$200M+", label: "Sales Volume" },
               { value: "5 Yrs", label: "In Presale Market" },
-              { value: "5.0★", label: "Google Rating" },
             ].map((s) => (
               <div key={s.label} className="bg-neutral-900/55 backdrop-blur-md px-3 py-4 text-center">
                 <div className="text-xl sm:text-2xl font-black text-primary leading-none">{s.value}</div>
