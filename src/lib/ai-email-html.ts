@@ -9,6 +9,7 @@ import {
   type AgentInfo,
   type EmailFontPairing,
 } from "@/components/admin/AiEmailTemplate";
+import { withEmailHeader } from "@/lib/emailHeader";
 
 const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
   Uzair: { phone: "778-231-3592", email: "info@presaleproperties.com" },
