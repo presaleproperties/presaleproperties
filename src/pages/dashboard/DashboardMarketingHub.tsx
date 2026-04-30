@@ -585,7 +585,7 @@ export default function DashboardMarketingHub() {
                 <TabsTrigger value="emails" className="gap-1.5 data-[state=active]:shadow-sm">
                   <Mail className="h-3.5 w-3.5" />
                   <span>Email Templates</span>
-                  <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0 ml-1">{assets.length}</Badge>
+                  <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0 ml-1">{assets.length + adminTemplates.length}</Badge>
                 </TabsTrigger>
                 <TabsTrigger value="decks" className="gap-1.5 data-[state=active]:shadow-sm">
                   <Presentation className="h-3.5 w-3.5" />
