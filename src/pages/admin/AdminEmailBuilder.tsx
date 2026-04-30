@@ -1314,6 +1314,8 @@ export default function AdminEmailBuilder() {
   };
 
   const handleDeleteTemplate = async (id: string) => {
+    const { syncTemplateDeletionToDealsFlow } = await import("@/lib/syncTemplateToDealsFlow");
+    await syncTemplateDeletionToDealsFlow(id);
     await supabase.from("campaign_templates").delete().eq("id", id);
     if (overwriteId === id) setOverwriteId(null);
     loadSavedTemplates();
