@@ -892,10 +892,10 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
             return { full_name: m.full_name ?? "", title: m.title ?? "Presale Specialist", photo_url: m.photo_url ?? null, ...c };
           });
           setAgents(enriched);
-          if (!savedDraft?.selAgent && enriched.length > 0) {
-            // In agent mode, auto-pick the logged-in team member as the signature.
-            // Fall back to first agent only if no match (e.g., admin without team_members row).
-            let defaultName = enriched[0].full_name;
+          if (enriched.length > 0) {
+            // Team portal always uses the logged-in team member's signature.
+            // Local drafts/templates must not make Zara/Ravish/Sarb send as Uzair.
+            let defaultName = !agentMode && savedDraft?.selAgent ? savedDraft.selAgent : enriched[0].full_name;
             if (agentMode && agentUserId) {
               const { data: tm } = await (supabase as any)
                 .from("team_members")
