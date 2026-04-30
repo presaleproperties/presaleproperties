@@ -115,21 +115,28 @@ export default function AdminMarketingHub() {
         }
       : undefined;
 
-    const { error } = await (supabase as any)
+    const { data: updatedRow, error } = await (supabase as any)
       .from("campaign_templates")
       .update(updatedFormData ? { name: newName, form_data: updatedFormData } : { name: newName })
-      .eq("id", id);
+      .eq("id", id)
+      .select()
+      .maybeSingle();
 
     if (error) toast.error("Failed to rename");
     else {
       toast.success("Renamed");
-      if (asset) {
+      if (asset && updatedRow) {
         const merged = { ...asset, name: newName, form_data: updatedFormData ?? asset.form_data };
         const html = (await import("@/lib/emailTemplateHelpers")).getSavedHtml(merged);
         syncTemplateToDealsFlow({
+          external_id: updatedRow.slug || updatedRow.id,
           name: newName,
           subject: newName,
           html,
+          owner_scope: updatedRow.owner_scope || "team:presale",
+          owner_agent_slug: updatedRow.owner_agent_slug || null,
+          created_by_agent_slug: updatedRow.created_by_agent_slug || null,
+          sync_hash: updatedRow.sync_hash || undefined,
           project: asset.form_data?.vars?.projectName || asset.project_name || undefined,
         });
       }
