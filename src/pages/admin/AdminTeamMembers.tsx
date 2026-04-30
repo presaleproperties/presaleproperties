@@ -43,7 +43,7 @@ interface TeamMember {
   user_id: string | null;
 }
 type TeamMemberForm = Omit<TeamMember, "id" | "user_id">;
-const emptyMember: Omit<TeamMember, "id"> = {
+const emptyMember: TeamMemberForm = {
   full_name: "",
   title: "",
   email: "",
@@ -61,8 +61,11 @@ export default function AdminTeamMembers() {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
-  const [formData, setFormData] = useState<Omit<TeamMember, "id">>(emptyMember);
+  const [formData, setFormData] = useState<TeamMemberForm>(emptyMember);
   const [specializationInput, setSpecializationInput] = useState("");
+  const [credentialsDialog, setCredentialsDialog] = useState<{ open: boolean; email: string; password: string; mode: "create" | "reset" }>({ open: false, email: "", password: "", mode: "create" });
+  const [actingOn, setActingOn] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const { data: teamMembers = [], isLoading } = useQuery({
     queryKey: ["admin-team-members"],
@@ -77,12 +80,13 @@ export default function AdminTeamMembers() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (member: Omit<TeamMember, "id"> & { id?: string }) => {
+    mutationFn: async (member: TeamMemberForm & { id?: string }) => {
       if (member.id) {
+        const { id, ...updates } = member;
         const { error } = await supabase
           .from("team_members")
-          .update(member)
-          .eq("id", member.id);
+          .update(updates)
+          .eq("id", id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("team_members").insert(member);
