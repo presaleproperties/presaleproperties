@@ -26,6 +26,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function Login() {
   const [searchParams] = useSearchParams();
   const statusParam = searchParams.get("status");
+  const redirectParam = searchParams.get("redirect");
 
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -39,6 +40,7 @@ export default function Login() {
 
   const checkUserRoleAndRedirect = async () => {
     if (!user) return;
+    setIsLoading(true);
 
     // Developers have their own portal
     const { data: devProfile } = await supabase
@@ -47,6 +49,7 @@ export default function Login() {
       .eq("user_id", user.id)
       .maybeSingle();
     if (devProfile) {
+      setIsLoading(false);
       navigate("/developer");
       return;
     }
@@ -63,9 +66,10 @@ export default function Login() {
     if (!hasFullAccess && !isTeamMember) {
       // Unknown user — must be invited by an admin
       await signOut();
+      setIsLoading(false);
       toast({
         title: "Access denied",
-        description: "This portal is for invited Presale Properties team members only. Please contact an administrator.",
+        description: "Please try again with an invited Agent Portal account.",
         variant: "destructive",
       });
       return;
@@ -74,11 +78,13 @@ export default function Login() {
     // First-login flow — force password change if flagged
     const mustChange = (user.user_metadata as any)?.must_change_password;
     if (mustChange) {
+      setIsLoading(false);
       navigate("/change-password");
       return;
     }
 
-    navigate("/dashboard");
+    setIsLoading(false);
+    navigate(redirectParam?.startsWith("/dashboard") ? redirectParam : "/dashboard");
   };
 
   const loginForm = useForm<LoginFormData>({
@@ -147,6 +153,11 @@ export default function Login() {
               {statusParam === "pending" && (
                 <div className="mb-6 p-4 rounded-lg bg-muted/50 border border-border text-sm">
                   Your account is pending admin approval.
+                </div>
+              )}
+              {statusParam === "access-denied" && (
+                <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
+                  Please sign in with an invited Agent Portal account to continue.
                 </div>
               )}
 
