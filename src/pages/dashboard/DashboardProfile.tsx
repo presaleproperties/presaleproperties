@@ -333,37 +333,59 @@ export default function DashboardProfile() {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold">Profile Settings</h1>
-          <p className="text-muted-foreground">Manage your account and license information</p>
+          <p className="text-muted-foreground">
+            {teamMember
+              ? "Your team profile is already set up — update info anytime."
+              : "Manage your account and license information"}
+          </p>
         </div>
 
-        {/* Verification Status */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              {getVerificationIcon()}
-              <div className="flex-1">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  Verification Status
-                  {getVerificationBadge()}
-                </CardTitle>
-                <CardDescription>
-                  {agentProfile?.verification_status === "verified"
-                    ? "Your license has been verified. You can publish listings."
-                    : agentProfile?.verification_status === "rejected"
-                    ? "Your verification was rejected. Please update your information."
-                    : "Your license is being reviewed by our team."}
-                </CardDescription>
+        {/* Team-member identity card (pre-filled, read-only summary) */}
+        {teamMember && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-success" />
+                Team Profile
+                <Badge className="bg-success/10 text-success border-success/20">Verified Team Member</Badge>
+              </CardTitle>
+              <CardDescription>
+                You're set up as <strong>{teamTitle || "Team Member"}</strong>. Your headshot, name, and contact info are pre-filled from your team record and used automatically across email signatures, marketing hub, and pitch decks.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        )}
+
+        {/* Verification Status — only for external/non-team agents */}
+        {!teamMember && agentProfile && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                {getVerificationIcon()}
+                <div className="flex-1">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    Verification Status
+                    {getVerificationBadge()}
+                  </CardTitle>
+                  <CardDescription>
+                    {agentProfile?.verification_status === "verified"
+                      ? "Your license has been verified. You can publish listings."
+                      : agentProfile?.verification_status === "rejected"
+                      ? "Your verification was rejected. Please update your information."
+                      : "Your license is being reviewed by our team."}
+                  </CardDescription>
+                </div>
               </div>
-            </div>
-          </CardHeader>
-          {agentProfile?.verification_notes && (
-            <CardContent className="pt-0">
-              <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
-                <strong>Admin notes:</strong> {agentProfile.verification_notes}
-              </p>
-            </CardContent>
-          )}
-        </Card>
+            </CardHeader>
+            {agentProfile?.verification_notes && (
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+                  <strong>Admin notes:</strong> {agentProfile.verification_notes}
+                </p>
+              </CardContent>
+            )}
+          </Card>
+        )}
 
         {/* Profile Photo */}
         <Card>
