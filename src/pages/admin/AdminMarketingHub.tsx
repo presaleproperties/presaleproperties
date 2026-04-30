@@ -87,6 +87,8 @@ export default function AdminMarketingHub() {
 
   const handleDelete = async (id: string) => {
     setDeleting(id);
+    const { syncTemplateDeletionToDealsFlow } = await import("@/lib/syncTemplateToDealsFlow");
+    await syncTemplateDeletionToDealsFlow(id);
     const { error } = await (supabase as any).from("campaign_templates").delete().eq("id", id);
     if (error) toast.error("Failed to delete");
     else { toast.success("Deleted"); fetchAssets(); }
