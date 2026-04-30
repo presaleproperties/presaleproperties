@@ -270,6 +270,14 @@ export default function DashboardProfile() {
 
       if (updateError) throw updateError;
 
+      // Mirror to team_members so signature/marketing-hub headshots update everywhere
+      if (teamMember) {
+        await (supabase as any)
+          .from("team_members")
+          .update({ photo_url: publicUrl })
+          .eq("user_id", user.id);
+      }
+
       setAvatarUrl(publicUrl);
       toast({
         title: "Photo updated",
