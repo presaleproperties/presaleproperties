@@ -50,6 +50,9 @@ interface SavedAsset {
   tags: string[] | null;
   is_favorited: boolean;
   last_sent_at: string | null;
+  owner_scope?: string | null;
+  owner_agent_slug?: string | null;
+  created_by_agent_slug?: string | null;
 }
 
 type SortOption = "recent" | "name" | "project";
