@@ -884,14 +884,28 @@ export default function AdminEmailBuilderPage({ agentMode, agentUserId }: { agen
 
     supabase.from("team_members_public" as any).select("id, full_name, title, photo_url")
       .eq("is_active", true).order("sort_order")
-      .then(({ data }: any) => {
+      .then(async ({ data }: any) => {
         if (data) {
           const enriched: AgentInfo[] = data.map((m: any) => {
             const c = AGENT_CONTACTS[m.full_name?.split(" ")[0]] ?? { phone: "", email: "" };
             return { full_name: m.full_name ?? "", title: m.title ?? "Presale Specialist", photo_url: m.photo_url ?? null, ...c };
           });
           setAgents(enriched);
-          if (enriched.length > 0 && !savedDraft?.selAgent) setSelAgent(enriched[0].full_name);
+          if (!savedDraft?.selAgent && enriched.length > 0) {
+            // In agent mode, auto-pick the logged-in team member as the signature.
+            // Fall back to first agent only if no match (e.g., admin without team_members row).
+            let defaultName = enriched[0].full_name;
+            if (agentMode && agentUserId) {
+              const { data: tm } = await (supabase as any)
+                .from("team_members")
+                .select("full_name")
+                .eq("user_id", agentUserId)
+                .maybeSingle();
+              const matched = tm?.full_name && enriched.find(a => a.full_name === tm.full_name);
+              if (matched) defaultName = matched.full_name;
+            }
+            setSelAgent(defaultName);
+          }
         }
       });
 
