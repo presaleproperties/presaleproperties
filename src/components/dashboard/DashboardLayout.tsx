@@ -145,7 +145,7 @@ export function DashboardLayout({ children, noPadding, teamMode: teamModeProp }:
 
   const handleSignOut = async () => {
     await signOut();
-    navigate(teamMode ? "/team/login" : "/");
+    navigate(teamMode ? "/login" : "/");
   };
 
   const isActive = (href: string) => {
