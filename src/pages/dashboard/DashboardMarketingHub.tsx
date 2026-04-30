@@ -240,7 +240,7 @@ export default function DashboardMarketingHub() {
       tags: asset.tags,
     });
     if (error) toast.error("Failed to clone");
-    else { toast.success("Template imported to your collection"); fetchAssets(); }
+    else { toast.success("Cloned into your templates"); fetchAssets(); }
     setImporting(null);
   };
 
