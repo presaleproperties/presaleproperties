@@ -56,19 +56,19 @@ const NotFound = () => {
           {isAgentRelated ? (
             <>
               <p className="text-sm text-muted-foreground mb-6">
-                Looking for agent resources? Try one of these:
+                Team member? Sign in to access your dashboard:
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link to="/for-agents">
+                <Link to="/login">
                   <Button size="lg" className="w-full sm:w-auto">
                     <Users className="h-4 w-4 mr-2" />
-                    Agent Portal Info
+                    Team Login
                   </Button>
                 </Link>
                 <Link to="/dashboard">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto">
                     <Building2 className="h-4 w-4 mr-2" />
-                    Agent Dashboard
+                    Team Dashboard
                   </Button>
                 </Link>
               </div>

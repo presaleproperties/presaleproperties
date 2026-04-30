@@ -51,7 +51,7 @@ const ThankYou = lazy(() => import("./pages/ThankYou"));
 const About = lazy(() => import("./pages/About"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
-const ForAgents = lazy(() => import("./pages/ForAgents"));
+
 const BuyersGuide = lazy(() => import("./pages/BuyersGuide"));
 const PresaleGuide = lazy(() => import("./pages/PresaleGuide"));
 const DeficiencyWalkthroughGuide = lazy(() => import("./pages/DeficiencyWalkthroughGuide"));
@@ -86,7 +86,7 @@ const AdminProjectImport = lazy(() => import("./pages/admin/AdminProjectImport")
 const AdminBlogs = lazy(() => import("./pages/admin/AdminBlogs"));
 const AdminBlogForm = lazy(() => import("./pages/admin/AdminBlogForm"));
 const AdminBlogImport = lazy(() => import("./pages/admin/AdminBlogImport"));
-const AdminAgents = lazy(() => import("./pages/admin/AdminAgents"));
+
 
 const AdminAssignments = lazy(() => import("./pages/admin/AdminAssignments"));
 const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
@@ -407,9 +407,6 @@ const App = () => (
             <Route path="/team/email-builder" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardEmailBuilder /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
             <Route path="/team/profile" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardProfile /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
 
-            {/* For Agents - redirect to login */}
-            <Route path="/for-agents" element={<Navigate to="/login" replace />} />
-            
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminProtectedRoute><AdminOverview /></AdminProtectedRoute>} />
@@ -423,7 +420,7 @@ const App = () => (
             <Route path="/admin/blogs/import" element={<AdminProtectedRoute><AdminBlogImport /></AdminProtectedRoute>} />
             <Route path="/admin/blogs/:id/edit" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
             
-            <Route path="/admin/agents" element={<AdminProtectedRoute><AdminAgents /></AdminProtectedRoute>} />
+            
             
             <Route path="/admin/leads" element={<AdminProtectedRoute><AdminLeads /></AdminProtectedRoute>} />
             <Route path="/admin/leads/analytics" element={<AdminProtectedRoute><AdminLeadAnalytics /></AdminProtectedRoute>} />
@@ -516,8 +513,8 @@ const App = () => (
             <Route path="/presale-condos-under-800k" element={<Navigate to="/presale-projects" replace />} />
             <Route path="/presale-townhomes-under-700k" element={<Navigate to="/presale-projects" replace />} />
             
-            {/* /for-developers → /for-agents */}
-            <Route path="/for-developers" element={<Navigate to="/for-agents" replace />} />
+            {/* Legacy /for-developers redirect → home */}
+            <Route path="/for-developers" element={<Navigate to="/" replace />} />
             
             {/* Properties with spaces in city names (Google crawled these) */}
             <Route path="/properties/new westminster" element={<Navigate to="/properties/new-westminster" replace />} />
