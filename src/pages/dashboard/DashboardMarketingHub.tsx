@@ -239,7 +239,7 @@ export default function DashboardMarketingHub() {
       user_id: user.id,
       tags: asset.tags,
     });
-    if (error) toast.error("Failed to import");
+    if (error) toast.error("Failed to clone");
     else { toast.success("Template imported to your collection"); fetchAssets(); }
     setImporting(null);
   };
