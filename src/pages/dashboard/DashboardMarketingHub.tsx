@@ -517,11 +517,19 @@ export default function DashboardMarketingHub() {
         )}
       </section>
 
-      {/* Admin templates */}
+      {/* Team templates — shared across the team, read-only unless admin */}
       {adminTemplates.length > 0 && (
-        <section>
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Company Templates ({adminTemplates.length})</p>
-          <p className="text-xs text-muted-foreground/60 mb-4">Import admin-created templates into your collection</p>
+        <section className="pt-2">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Users className="h-3.5 w-3.5 text-primary" />
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground">
+                Team Templates
+              </p>
+              <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0">{adminTemplates.length}</Badge>
+            </div>
+            <p className="text-[10px] text-muted-foreground/70">Shared with the whole team · clone to edit</p>
+          </div>
           <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}>
             {adminTemplates.map(asset => (
               viewMode === "grid" ? <TemplateCardGrid key={asset.id} asset={asset} isAdmin /> : (
@@ -530,11 +538,14 @@ export default function DashboardMarketingHub() {
                     {getPreviewImage(asset) ? <img src={getPreviewImage(asset)!} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Mail className="h-5 w-5 text-muted-foreground/15" /></div>}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate">{getDisplayName(asset)}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-semibold truncate">{getDisplayName(asset)}</p>
+                      <Badge variant="outline" className="text-[9px] h-4 px-1.5 py-0 shrink-0">Team</Badge>
+                    </div>
                     <p className="text-[11px] text-muted-foreground/60">{timeAgo(asset.updated_at)} · {asset.project_name}</p>
                   </div>
-                  <Button size="sm" className="h-7 text-xs gap-1 shrink-0" disabled={importing === asset.id} onClick={() => handleImport(asset)}>
-                    <Copy className="h-3 w-3" /> {importing === asset.id ? "..." : "Import"}
+                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1 shrink-0" disabled={importing === asset.id} onClick={() => handleImport(asset)}>
+                    <Copy className="h-3 w-3" /> {importing === asset.id ? "..." : "Clone to mine"}
                   </Button>
                 </div>
               )
