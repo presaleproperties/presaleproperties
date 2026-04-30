@@ -680,9 +680,8 @@ export default function DashboardMarketingHub() {
               <TabsContent value="analytics">
                 <MarketingAnalytics />
               </TabsContent>
-            </Tabs>
-          </div>
-        </div>
+            </div>
+          </Tabs>
       </div>
 
       {/* Quick Send Dialog */}
