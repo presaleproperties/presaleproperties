@@ -138,15 +138,34 @@ export default function DashboardMarketingHub() {
   const fetchAssets = async () => {
     if (!user) return;
     setLoading(true);
+    // Fetch caller's agent slug to split team vs personal
+    const { data: tm } = await (supabase as any)
+      .from("team_members")
+      .select("agent_slug")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const mySlug: string | null = tm?.agent_slug ?? null;
+
     const { data } = await (supabase as any)
       .from("campaign_templates")
       .select("*")
+      .eq("is_active", true)
       .order("updated_at", { ascending: false });
 
     if (data) {
       const all = data as SavedAsset[];
-      setAssets(all.filter((a) => a.user_id === user.id));
-      setAdminTemplates(all.filter((a) => !a.user_id));
+      // My templates: agent-scoped to me, OR (legacy) owned by my user_id with no scope
+      const mine = all.filter((a) =>
+        (a.owner_scope?.startsWith("agent:") && a.owner_agent_slug === mySlug) ||
+        (!a.owner_scope && a.user_id === user.id)
+      );
+      // Team templates: explicit team scope, OR legacy admin templates with no user
+      const team = all.filter((a) =>
+        a.owner_scope?.startsWith("team:") ||
+        (!a.owner_scope && !a.user_id)
+      );
+      setAssets(mine);
+      setAdminTemplates(team);
     }
     setLoading(false);
   };
