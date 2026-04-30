@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,6 +59,17 @@ const TEAM_AGENTS: AgentInfo[] = [
     photoUrl: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team/1769973843032-qlc6fc.png",
     phone: "(672) 258-1100",
     email: "sarb@presaleproperties.com",
+    website: "https://presaleproperties.com",
+    brokerage: "Real Broker",
+    instagram: "",
+  },
+  {
+    id: "zara",
+    fullName: "Zara Malik",
+    title: "Operations & Partnerships Manager",
+    photoUrl: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team%2Fzara-malik-headshot.png",
+    phone: "(672) 258-1100",
+    email: "admin@presaleproperties.com",
     website: "https://presaleproperties.com",
     brokerage: "Real Broker",
     instagram: "",
@@ -168,6 +180,7 @@ function agentToFields(a: AgentInfo): EditableFields {
 }
 
 export function SignatureEditor() {
+  const { user } = useAuth();
   const [selectedAgentId, setSelectedAgentId] = useState(TEAM_AGENTS[0].id);
   const [layout, setLayout] = useState<LayoutVariant>("horizontal");
   const [mode, setMode] = useState<"form" | "html">("form");
@@ -180,21 +193,43 @@ export function SignatureEditor() {
 
   useEffect(() => {
     (async () => {
+      // Load saved overrides
       const { data } = await (supabase as any)
         .from("app_settings")
         .select("value")
         .eq("key", "team_signature_overrides")
         .maybeSingle();
-      if (data?.value) {
-        const overrides = data.value as Record<string, EditableFields>;
-        setSavedOverrides(overrides);
-        if (overrides[TEAM_AGENTS[0].id]) {
-          setFields(overrides[TEAM_AGENTS[0].id]);
+      const overrides: Record<string, EditableFields> = (data?.value as any) || {};
+      setSavedOverrides(overrides);
+
+      // Default to the logged-in team member's signature when possible
+      let defaultAgentId = TEAM_AGENTS[0].id;
+      if (user?.id) {
+        const { data: tm } = await (supabase as any)
+          .from("team_members")
+          .select("full_name, email")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (tm) {
+          const tmEmail = (tm.email || "").toLowerCase();
+          const tmFirstName = (tm.full_name || "").split(" ")[0]?.toLowerCase();
+          const matched = TEAM_AGENTS.find(
+            a => a.email.toLowerCase() === tmEmail || a.id === tmFirstName
+          );
+          if (matched) defaultAgentId = matched.id;
         }
+      }
+      setSelectedAgentId(defaultAgentId);
+
+      if (overrides[defaultAgentId]) {
+        setFields(overrides[defaultAgentId]);
+      } else {
+        const agent = TEAM_AGENTS.find(a => a.id === defaultAgentId);
+        if (agent) setFields(agentToFields(agent));
       }
       setLoading(false);
     })();
-  }, []);
+  }, [user?.id]);
 
   const handleAgentChange = (agentId: string) => {
     setSelectedAgentId(agentId);
