@@ -46,7 +46,7 @@ export function TeamProtectedRoute({ children }: TeamProtectedRouteProps) {
     );
   }
 
-  if (!user) return <Navigate to="/team/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
 
   if (status === "approved") return <>{children}</>;
 
