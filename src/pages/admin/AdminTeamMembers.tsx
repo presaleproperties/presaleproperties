@@ -42,7 +42,7 @@ interface TeamMember {
   is_active: boolean;
   user_id: string | null;
 }
-
+type TeamMemberForm = Omit<TeamMember, "id" | "user_id">;
 const emptyMember: Omit<TeamMember, "id"> = {
   full_name: "",
   title: "",
