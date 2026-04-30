@@ -173,12 +173,12 @@ export function DashboardLayout({ children, noPadding, teamMode }: DashboardLayo
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            <Link to="/dashboard" className="flex items-center gap-2">
+            <Link to={homeHref} className="flex items-center gap-2">
               <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
                 <Sparkles className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary-foreground" />
               </div>
               <span className="text-lg md:text-xl font-bold tracking-tight">
-                Agent<span className="text-primary">Hub</span>
+                {brandPrimary}<span className="text-primary">{brandAccent}</span>
               </span>
             </Link>
           </div>
@@ -237,7 +237,7 @@ export function DashboardLayout({ children, noPadding, teamMode }: DashboardLayo
                   {section.items.map((item) => (
                     <Link
                       key={item.href}
-                      to={item.href}
+                      to={remap(item.href)}
                       className={cn(
                         "group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-all duration-200",
                         isActive(item.href)
@@ -312,7 +312,7 @@ export function DashboardLayout({ children, noPadding, teamMode }: DashboardLayo
                       {section.items.map((item) => (
                         <Link
                           key={item.href}
-                          to={item.href}
+                          to={remap(item.href)}
                           onClick={() => setMobileMenuOpen(false)}
                           className={cn(
                             "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
@@ -356,7 +356,7 @@ export function DashboardLayout({ children, noPadding, teamMode }: DashboardLayo
             return (
               <Link
                 key={tab.href}
-                to={tab.href}
+                to={remap(tab.href)}
                 className={cn(
                   "flex flex-col items-center justify-center gap-0.5 w-full h-full text-[10px] font-medium transition-colors",
                   active
