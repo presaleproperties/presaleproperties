@@ -58,6 +58,7 @@ const DeficiencyWalkthroughGuide = lazy(() => import("./pages/DeficiencyWalkthro
 const FAQ = lazy(() => import("./pages/FAQ"));
 const MortgageCalculatorPage = lazy(() => import("./pages/MortgageCalculatorPage"));
 const Login = lazy(() => import("./pages/Login"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 const DashboardOverview = lazy(() => import("./pages/dashboard/DashboardOverview"));
 const DashboardListings = lazy(() => import("./pages/dashboard/DashboardListings"));
 const DashboardLeads = lazy(() => import("./pages/dashboard/DashboardLeads"));
@@ -355,6 +356,7 @@ const App = () => (
             <Route path="/maple-ridge-town-centre-presale" element={<NeighborhoodLandingPage />} />
             
             <Route path="/login" element={<Login />} />
+            <Route path="/change-password" element={<ChangePassword />} />
             
             {/* Developer Portal Routes */}
             <Route path="/developer-portal" element={<DeveloperPortalLanding />} />
