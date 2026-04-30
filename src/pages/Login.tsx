@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Shield, Users } from "lucide-react";
 import { MetaTags } from "@/components/seo/MetaTags";
 import { formatPhoneNumber } from "@/lib/formatPhone";
+import { lovable } from "@/integrations/lovable";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
