@@ -476,10 +476,10 @@ const App = () => (
             
             
             {/* Agent URL Redirects - common typos/variants */}
-            <Route path="/agent" element={<Navigate to="/for-agents" replace />} />
-            <Route path="/agents" element={<Navigate to="/for-agents" replace />} />
-            <Route path="/agent-portal" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/agent-dashboard" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/agent" element={<Navigate to="/login" replace />} />
+            <Route path="/agents" element={<Navigate to="/login" replace />} />
+            <Route path="/agent-portal" element={<Navigate to="/login" replace />} />
+            <Route path="/agent-dashboard" element={<Navigate to="/login" replace />} />
             
             {/* Legacy /blogs/* → /blog/* redirect (Google crawled plural form) */}
             <Route path="/blogs/:slug" element={<BlogsRedirect />} />
