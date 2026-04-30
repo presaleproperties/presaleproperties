@@ -31,7 +31,7 @@ export function FloatingMapButton() {
   
   const isAdminPage = location.pathname.startsWith("/admin");
   const isDashboardPage = location.pathname.startsWith("/dashboard");
-  const isForAgentsPage = location.pathname === "/for-agents";
+  const isForAgentsPage = false;
   
   // Detail pages for all property types
   const isPresaleDetailPage = location.pathname.startsWith("/presale/") || location.pathname.startsWith("/presale-projects/");

@@ -22,7 +22,7 @@ const NAV_ITEMS = [
   { label: "Move-In Ready", icon: HomeIcon, path: "/properties" },
   { label: "Map Search", icon: Map, path: "/map-search" },
   { label: "ROI Calculator", icon: Calculator, path: "/roi-calculator" },
-  { label: "For Agents", icon: Users, path: "/for-agents" },
+  
   { label: "Blog", icon: BookOpen, path: "/blog" },
   { label: "Contact", icon: Phone, path: "/contact" },
 ];
