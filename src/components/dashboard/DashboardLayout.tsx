@@ -25,6 +25,7 @@ import {
 interface DashboardLayoutProps {
   children: ReactNode;
   noPadding?: boolean;
+  teamMode?: boolean;
 }
 
 interface NavSection {
@@ -114,13 +115,19 @@ const mobileBottomTabs = [
   { label: "Profile", href: "/dashboard/profile", icon: User, exact: false },
 ];
 
-export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
+export function DashboardLayout({ children, noPadding, teamMode }: DashboardLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fullName, setFullName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  // Rewrite /dashboard/* -> /team/* when in teamMode
+  const remap = (href: string) => teamMode ? href.replace(/^\/dashboard/, "/team") : href;
+  const homeHref = teamMode ? "/team" : "/dashboard";
+  const brandPrimary = teamMode ? "Team" : "Agent";
+  const brandAccent = "Hub";
 
   useEffect(() => {
     if (!user) return;
@@ -135,19 +142,21 @@ export function DashboardLayout({ children, noPadding }: DashboardLayoutProps) {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
+    navigate(teamMode ? "/team/login" : "/");
   };
 
   const isActive = (href: string) => {
-    if (href === "/dashboard") {
-      return location.pathname === href;
+    const target = remap(href);
+    if (target === homeHref) {
+      return location.pathname === target;
     }
-    return location.pathname.startsWith(href);
+    return location.pathname.startsWith(target);
   };
 
   const isTabActive = (href: string, exact: boolean) => {
-    if (exact) return location.pathname === href;
-    return location.pathname.startsWith(href);
+    const target = remap(href);
+    if (exact) return location.pathname === target;
+    return location.pathname.startsWith(target);
   };
 
   return (
