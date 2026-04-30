@@ -55,6 +55,7 @@ const AGENT_CONTACTS: Record<string, { phone: string; email: string }> = {
   "Uzair":  { phone: "778-231-3592",      email: "info@presaleproperties.com" },
   "Sarb":   { phone: "+1 (778) 846-7065", email: "sarb@presaleproperties.com"  },
   "Ravish": { phone: "+1 (604) 349-9399", email: "ravish@presaleproperties.com" },
+  "Zara":   { phone: "(672) 258-1100",    email: "admin@presaleproperties.com" },
 };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
