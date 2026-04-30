@@ -61,7 +61,7 @@ const Login = lazy(() => import("./pages/Login"));
 const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 const DashboardOverview = lazy(() => import("./pages/dashboard/DashboardOverview"));
 const DashboardListings = lazy(() => import("./pages/dashboard/DashboardListings"));
-const DashboardLeads = lazy(() => import("./pages/dashboard/DashboardLeads"));
+
 const DashboardEmails = lazy(() => import("./pages/dashboard/DashboardEmails"));
 const DashboardProfile = lazy(() => import("./pages/dashboard/DashboardProfile"));
 const DashboardProjectDocuments = lazy(() => import("./pages/dashboard/DashboardProjectDocuments"));
@@ -382,7 +382,7 @@ const App = () => (
             <Route path="/dashboard/decks" element={<Navigate to="/dashboard/marketing-hub?tab=decks" replace />} />
             <Route path="/dashboard/decks/new" element={<ProtectedRoute><DashboardErrorBoundary><DashboardDeckBuilder /></DashboardErrorBoundary></ProtectedRoute>} />
             <Route path="/dashboard/decks/:id/edit" element={<ProtectedRoute><DashboardErrorBoundary><DashboardDeckBuilder /></DashboardErrorBoundary></ProtectedRoute>} />
-            <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardErrorBoundary><DashboardLeads /></DashboardErrorBoundary></ProtectedRoute>} />
+            <Route path="/dashboard/leads" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/emails" element={<ProtectedRoute><DashboardErrorBoundary><DashboardEmails /></DashboardErrorBoundary></ProtectedRoute>} />
             <Route path="/dashboard/marketing-hub" element={<ProtectedRoute><DashboardErrorBoundary><DashboardMarketingHub /></DashboardErrorBoundary></ProtectedRoute>} />
             <Route path="/dashboard/email-builder" element={<ProtectedRoute><DashboardErrorBoundary><DashboardEmailBuilder /></DashboardErrorBoundary></ProtectedRoute>} />
@@ -401,7 +401,7 @@ const App = () => (
             <Route path="/team/listings/:id/edit" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><ListingForm /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
             <Route path="/team/decks/new" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardDeckBuilder /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
             <Route path="/team/decks/:id/edit" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardDeckBuilder /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
-            <Route path="/team/leads" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardLeads /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/leads" element={<Navigate to="/team" replace />} />
             <Route path="/team/emails" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardEmails /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
             <Route path="/team/marketing-hub" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardMarketingHub /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
             <Route path="/team/email-builder" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardEmailBuilder /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
