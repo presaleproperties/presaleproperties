@@ -2,7 +2,7 @@ import { useState, useEffect, createContext, useContext, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-type AppRole = "admin" | "moderator" | "user" | "developer" | "agent";
+type AppRole = "admin" | "moderator" | "user" | "developer" | "agent" | "team_member";
 
 interface AuthContextType {
   user: User | null;
@@ -11,6 +11,7 @@ interface AuthContextType {
   role: AppRole;
   isAdmin: boolean;
   isAgent: boolean;
+  isTeamMember: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, metadata: SignUpMetadata) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAdmin = role === "admin";
   const isAgent = role === "agent" || role === "admin";
+  const isTeamMember = role === "team_member" || role === "admin";
 
   const fetchRole = async (userId: string) => {
     const { data } = await supabase
@@ -43,10 +45,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .order("role");
     
     if (data && data.length > 0) {
-      // Prioritize: admin > agent > developer > moderator > user
+      // Prioritize: admin > agent > team_member > developer > moderator > user
       const roles = data.map((r) => r.role as AppRole);
       if (roles.includes("admin")) setRole("admin");
       else if (roles.includes("agent")) setRole("agent");
+      else if (roles.includes("team_member")) setRole("team_member");
       else if (roles.includes("developer")) setRole("developer");
       else if (roles.includes("moderator")) setRole("moderator");
       else setRole("user");
@@ -128,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, role, isAdmin, isAgent, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, role, isAdmin, isAgent, isTeamMember, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

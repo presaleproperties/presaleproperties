@@ -761,6 +761,7 @@ export type Database = {
           name: string
           pricing_sheet_url: string | null
           project_name: string
+          scope: string
           tags: string[] | null
           thumbnail_url: string | null
           updated_at: string
@@ -776,6 +777,7 @@ export type Database = {
           name: string
           pricing_sheet_url?: string | null
           project_name?: string
+          scope?: string
           tags?: string[] | null
           thumbnail_url?: string | null
           updated_at?: string
@@ -791,6 +793,7 @@ export type Database = {
           name?: string
           pricing_sheet_url?: string | null
           project_name?: string
+          scope?: string
           tags?: string[] | null
           thumbnail_url?: string | null
           updated_at?: string
@@ -4579,6 +4582,48 @@ export type Database = {
         }
         Relationships: []
       }
+      team_member_profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       team_members: {
         Row: {
           bio: string | null
@@ -5275,7 +5320,13 @@ export type Database = {
       upsert_crm_identity: { Args: { p_data: Json }; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user" | "developer" | "agent"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "developer"
+        | "agent"
+        | "team_member"
       appointment_type: "preview" | "showing"
       automation_step_type:
         | "delay"
@@ -5419,7 +5470,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user", "developer", "agent"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "developer",
+        "agent",
+        "team_member",
+      ],
       appointment_type: ["preview", "showing"],
       automation_step_type: [
         "delay",

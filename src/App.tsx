@@ -8,6 +8,8 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ProtectedRoute } from "@/components/dashboard/ProtectedRoute";
 import { DashboardErrorBoundary } from "@/components/dashboard/DashboardErrorBoundary";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
+import { TeamProtectedRoute } from "@/components/team/TeamProtectedRoute";
+import { TeamModeProvider } from "@/components/team/TeamModeContext";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ScrollLockSafety } from "@/components/util/ScrollLockSafety";
 import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
@@ -84,6 +86,8 @@ const AdminBlogs = lazy(() => import("./pages/admin/AdminBlogs"));
 const AdminBlogForm = lazy(() => import("./pages/admin/AdminBlogForm"));
 const AdminBlogImport = lazy(() => import("./pages/admin/AdminBlogImport"));
 const AdminAgents = lazy(() => import("./pages/admin/AdminAgents"));
+const AdminTeamApprovals = lazy(() => import("./pages/admin/AdminTeamApprovals"));
+const TeamLogin = lazy(() => import("./pages/team/TeamLogin"));
 const AdminAssignments = lazy(() => import("./pages/admin/AdminAssignments"));
 const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
@@ -386,7 +390,22 @@ const App = () => (
             <Route path="/dashboard/lead-onboard" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/billing" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardErrorBoundary><DashboardProfile /></DashboardErrorBoundary></ProtectedRoute>} />
-            
+
+            {/* Team Member Hub Routes (internal team agents) */}
+            <Route path="/team/login" element={<TeamLogin />} />
+            <Route path="/team" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardOverview /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/projects" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardProjectDocuments /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/listings" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardListings /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/listings/new" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><ListingForm /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/listings/:id/edit" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><ListingForm /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/decks/new" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardDeckBuilder /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/decks/:id/edit" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardDeckBuilder /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/leads" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardLeads /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/emails" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardEmails /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/marketing-hub" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardMarketingHub /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/email-builder" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardEmailBuilder /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+            <Route path="/team/profile" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardProfile /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
+
             {/* For Agents - redirect to login */}
             <Route path="/for-agents" element={<Navigate to="/login" replace />} />
             
@@ -404,6 +423,7 @@ const App = () => (
             <Route path="/admin/blogs/:id/edit" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
             
             <Route path="/admin/agents" element={<AdminProtectedRoute><AdminAgents /></AdminProtectedRoute>} />
+            <Route path="/admin/team-approvals" element={<AdminProtectedRoute><AdminTeamApprovals /></AdminProtectedRoute>} />
             <Route path="/admin/leads" element={<AdminProtectedRoute><AdminLeads /></AdminProtectedRoute>} />
             <Route path="/admin/leads/analytics" element={<AdminProtectedRoute><AdminLeadAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/paid-ads" element={<AdminProtectedRoute><AdminPaidAdsDashboard /></AdminProtectedRoute>} />
