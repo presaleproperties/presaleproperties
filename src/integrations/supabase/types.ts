@@ -754,14 +754,20 @@ export type Database = {
         Row: {
           brochure_url: string | null
           created_at: string
+          created_by_agent_slug: string | null
           form_data: Json
           id: string
+          is_active: boolean
           is_favorited: boolean | null
           last_sent_at: string | null
           name: string
+          owner_agent_slug: string | null
+          owner_scope: string
           pricing_sheet_url: string | null
           project_name: string
           scope: string
+          slug: string
+          sync_hash: string | null
           tags: string[] | null
           thumbnail_url: string | null
           updated_at: string
@@ -770,14 +776,20 @@ export type Database = {
         Insert: {
           brochure_url?: string | null
           created_at?: string
+          created_by_agent_slug?: string | null
           form_data?: Json
           id?: string
+          is_active?: boolean
           is_favorited?: boolean | null
           last_sent_at?: string | null
           name: string
+          owner_agent_slug?: string | null
+          owner_scope: string
           pricing_sheet_url?: string | null
           project_name?: string
           scope?: string
+          slug: string
+          sync_hash?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
           updated_at?: string
@@ -786,14 +798,20 @@ export type Database = {
         Update: {
           brochure_url?: string | null
           created_at?: string
+          created_by_agent_slug?: string | null
           form_data?: Json
           id?: string
+          is_active?: boolean
           is_favorited?: boolean | null
           last_sent_at?: string | null
           name?: string
+          owner_agent_slug?: string | null
+          owner_scope?: string
           pricing_sheet_url?: string | null
           project_name?: string
           scope?: string
+          slug?: string
+          sync_hash?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
           updated_at?: string
@@ -4626,6 +4644,7 @@ export type Database = {
       }
       team_members: {
         Row: {
+          agent_slug: string
           bio: string | null
           created_at: string
           email: string | null
@@ -4643,6 +4662,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          agent_slug: string
           bio?: string | null
           created_at?: string
           email?: string | null
@@ -4660,6 +4680,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          agent_slug?: string
           bio?: string | null
           created_at?: string
           email?: string | null
@@ -5171,6 +5192,7 @@ export type Database = {
       calculate_lead_score_v2: { Args: { p_lead_id: string }; Returns: number }
       cleanup_old_sync_logs: { Args: never; Returns: undefined }
       cleanup_rate_limit_log: { Args: never; Returns: undefined }
+      current_agent_slug: { Args: never; Returns: string }
       enqueue_crm_outbox: {
         Args: {
           p_email?: string
