@@ -115,10 +115,14 @@ const mobileBottomTabs = [
   { label: "Profile", href: "/dashboard/profile", icon: User, exact: false },
 ];
 
-export function DashboardLayout({ children, noPadding, teamMode }: DashboardLayoutProps) {
+import { useTeamMode } from "@/components/team/TeamModeContext";
+
+export function DashboardLayout({ children, noPadding, teamMode: teamModeProp }: DashboardLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user, isAdmin } = useAuth();
+  const teamModeCtx = useTeamMode();
+  const teamMode = teamModeProp ?? teamModeCtx;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fullName, setFullName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
