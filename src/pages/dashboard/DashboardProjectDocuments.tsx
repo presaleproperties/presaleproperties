@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,11 +29,9 @@ import {
   Download,
   Building2,
   MapPin,
-  Lock,
   CheckCircle,
   AlertCircle,
   ExternalLink,
-  Loader2,
   FolderOpen,
   Crown,
   Filter,
@@ -59,30 +56,11 @@ interface PresaleProject {
 }
 
 export default function DashboardProjectDocuments() {
-  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedProject, setSelectedProject] = useState<PresaleProject | null>(null);
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false);
-
-  // Check agent verification status
-  const { data: agentProfile, isLoading: profileLoading } = useQuery({
-    queryKey: ["agent-profile", user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data, error } = await (supabase as any)
-        .from("agent_profiles")
-        .select("verification_status")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user?.id,
-  });
-
-  const isVerified = agentProfile?.verification_status === "verified";
 
   // Fetch all published presale projects with documents
   const { data: projects, isLoading: projectsLoading } = useQuery({
@@ -162,87 +140,6 @@ export default function DashboardProjectDocuments() {
   const hasDocuments = (project: PresaleProject) =>
     (project.brochure_files && project.brochure_files.length > 0) ||
     (project.floorplan_files && project.floorplan_files.length > 0);
-
-  if (profileLoading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  // Not verified - show locked state
-  if (!isVerified) {
-    return (
-      <DashboardLayout>
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 p-6 md:p-8">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-2">
-                <Crown className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium text-primary">Premium Agent Benefit</span>
-              </div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                Project Document Library
-              </h1>
-              <p className="text-muted-foreground">
-                Access floorplans, brochures, and pricing sheets for all BC presale projects.
-              </p>
-            </div>
-          </div>
-
-          {/* Locked Card */}
-          <Card className="border-warning/30 bg-gradient-to-br from-warning/5 to-background">
-            <CardContent className="py-12">
-              <div className="flex flex-col items-center justify-center text-center max-w-md mx-auto">
-                <div className="p-4 rounded-full bg-warning/10 mb-4">
-                  <Lock className="h-10 w-10 text-warning" />
-                </div>
-                <h2 className="text-xl font-semibold mb-2">Verification Required</h2>
-                <p className="text-muted-foreground mb-6">
-                  Complete your BCFSA license verification to unlock access to project documents,
-                  floorplans, and pricing sheets for all {projects?.length || 0}+ presale projects.
-                </p>
-                <div className="flex gap-3">
-                  <Link to="/dashboard/profile">
-                    <Button className="gap-2">
-                      <CheckCircle className="h-4 w-4" />
-                      Complete Verification
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Preview of what's available - blurred */}
-          <div className="relative">
-            <div className="absolute inset-0 backdrop-blur-sm bg-background/50 z-10 rounded-xl flex items-center justify-center">
-              <Badge variant="outline" className="gap-2 py-2 px-4 bg-background/80">
-                <Lock className="h-4 w-4" />
-                Unlock with verification
-              </Badge>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 opacity-50">
-              {[1, 2, 3].map((i) => (
-                <Card key={i}>
-                  <Skeleton className="h-32 w-full" />
-                  <CardContent className="pt-4">
-                    <Skeleton className="h-5 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   return (
     <DashboardLayout>

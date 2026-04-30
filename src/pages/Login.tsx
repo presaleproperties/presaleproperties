@@ -84,6 +84,15 @@ export default function Login() {
     }
 
     setIsLoading(false);
+    if (isTeamMember && !roleNames.includes("admin")) {
+      const teamRedirect = redirectParam?.startsWith("/team")
+        ? redirectParam
+        : redirectParam?.startsWith("/dashboard")
+          ? redirectParam.replace(/^\/dashboard/, "/team")
+          : "/team";
+      navigate(teamRedirect);
+      return;
+    }
     navigate(redirectParam?.startsWith("/dashboard") ? redirectParam : "/dashboard");
   };
 

@@ -3,6 +3,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import { Card } from "@/components/ui/card";
+import { useTeamMode } from "@/components/team/TeamModeContext";
 import { PenTool, Megaphone, FolderOpen, FileText, Mail, User, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +47,9 @@ const SHORTCUTS = [
 ];
 
 export default function DashboardOverview() {
+  const teamMode = useTeamMode();
+  const remap = (href: string) => teamMode ? href.replace(/^\/dashboard/, "/team") : href;
+
   return (
     <DashboardLayout>
       <div className="space-y-8 max-w-6xl mx-auto">
@@ -77,7 +81,7 @@ export default function DashboardOverview() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {SHORTCUTS.map((s) => (
-              <Link key={s.href} to={s.href} className="group">
+              <Link key={s.href} to={remap(s.href)} className="group">
                 <Card
                   className={cn(
                     "p-5 h-full border-border/60 transition-all duration-200",

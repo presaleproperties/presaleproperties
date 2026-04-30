@@ -8,13 +8,19 @@ import { useAuth } from "@/hooks/useAuth";
  * the user has an agent_profile with verification_status = 'verified'.
  */
 export function useVerifiedAgent() {
-  const { user } = useAuth();
+  const { user, isTeamMember } = useAuth();
   const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
       setIsVerified(false);
+      setLoading(false);
+      return;
+    }
+
+    if (isTeamMember) {
+      setIsVerified(true);
       setLoading(false);
       return;
     }
@@ -42,7 +48,7 @@ export function useVerifiedAgent() {
     };
 
     checkVerification();
-  }, [user]);
+  }, [user, isTeamMember]);
 
   return { isVerified, loading };
 }
