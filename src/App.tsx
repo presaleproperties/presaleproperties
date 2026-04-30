@@ -87,7 +87,6 @@ const AdminBlogForm = lazy(() => import("./pages/admin/AdminBlogForm"));
 const AdminBlogImport = lazy(() => import("./pages/admin/AdminBlogImport"));
 const AdminAgents = lazy(() => import("./pages/admin/AdminAgents"));
 const AdminTeamApprovals = lazy(() => import("./pages/admin/AdminTeamApprovals"));
-const TeamLogin = lazy(() => import("./pages/team/TeamLogin"));
 const AdminAssignments = lazy(() => import("./pages/admin/AdminAssignments"));
 const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
@@ -391,8 +390,8 @@ const App = () => (
             <Route path="/dashboard/billing" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardErrorBoundary><DashboardProfile /></DashboardErrorBoundary></ProtectedRoute>} />
 
-            {/* Team Member Hub Routes (internal team agents) */}
-            <Route path="/team/login" element={<TeamLogin />} />
+            {/* Team Member Hub Routes (internal team agents) — login is shared with /login */}
+            <Route path="/team/login" element={<Navigate to="/login" replace />} />
             <Route path="/team" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardOverview /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
             <Route path="/team/projects" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardProjectDocuments /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
             <Route path="/team/listings" element={<TeamProtectedRoute><TeamModeProvider><DashboardErrorBoundary><DashboardListings /></DashboardErrorBoundary></TeamModeProvider></TeamProtectedRoute>} />
