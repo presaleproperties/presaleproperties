@@ -1,5 +1,5 @@
 import { ReactNode, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -9,12 +9,15 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const location = useLocation();
   const { user, loading, isAgent, isTeamMember } = useAuth();
   const hasAccess = isAgent || isTeamMember;
+  const redirectPath = `${location.pathname}${location.search}`;
+  const loginPath = `/login?redirect=${encodeURIComponent(redirectPath)}`;
 
   useEffect(() => {
     if (!loading && user && !hasAccess) {
-      toast.error("You don't have access to the Agent Hub.");
+      toast.error("Please sign in with an invited Agent Portal account.");
     }
   }, [loading, user, hasAccess]);
 
@@ -27,11 +30,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={loginPath} replace />;
   }
 
   if (!hasAccess) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={`/login?status=access-denied&redirect=${encodeURIComponent(redirectPath)}`} replace />;
   }
 
   return <>{children}</>;
