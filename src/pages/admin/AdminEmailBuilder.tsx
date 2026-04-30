@@ -1248,34 +1248,43 @@ export default function AdminEmailBuilder() {
         agentId: selectedAgent?.id,
         finalHtml,
       };
+      let savedRow: any = null;
       if (overwriteId) {
-        // Update existing template
-        const { error } = await supabase.from("campaign_templates").update({
+        const { data, error } = await supabase.from("campaign_templates").update({
           name: templateName.trim(),
           project_name: vars.projectName || "Untitled",
           form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
           user_id: user?.id || null,
-        }).eq("id", overwriteId);
+        }).eq("id", overwriteId).select().maybeSingle();
         if (error) throw error;
+        savedRow = data;
         toast.success("Template updated!");
       } else {
-        const { error } = await supabase.from("campaign_templates").insert([{
+        const { data, error } = await supabase.from("campaign_templates").insert([{
           name: templateName.trim(),
           project_name: vars.projectName || "Untitled",
           form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
           user_id: user?.id || null,
-        }]);
+        }]).select().maybeSingle();
         if (error) throw error;
+        savedRow = data;
         toast.success("Template saved!");
       }
 
-      // Sync to DealsFlow CRM (fire-and-forget)
-      syncTemplateToDealsFlow({
-        name: templateName.trim(),
-        subject: vars.subjectLine || templateName.trim(),
-        html: finalHtml,
-        project: vars.projectName || undefined,
-      });
+      // Sync to DealsFlow CRM (fire-and-forget) — uses scope set by DB trigger
+      if (savedRow) {
+        syncTemplateToDealsFlow({
+          external_id: savedRow.slug || savedRow.id,
+          name: templateName.trim(),
+          subject: vars.subjectLine || templateName.trim(),
+          html: finalHtml,
+          owner_scope: savedRow.owner_scope || "team:presale",
+          owner_agent_slug: savedRow.owner_agent_slug || null,
+          created_by_agent_slug: savedRow.created_by_agent_slug || null,
+          sync_hash: savedRow.sync_hash || undefined,
+          project: vars.projectName || undefined,
+        });
+      }
       setSaveDialogOpen(false);
       setTemplateName("");
       setOverwriteId(null);
