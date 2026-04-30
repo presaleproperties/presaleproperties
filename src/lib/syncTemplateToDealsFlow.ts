@@ -33,6 +33,7 @@ export interface TemplateSyncPayload {
  * Never throws — failures are silently swallowed.
  */
 export function syncTemplateToDealsFlow(template: TemplateSyncPayload) {
+  // 1) Legacy sync (kept for existing CRM consumer)
   fetch(TEMPLATE_SYNC_URL, {
     method: "POST",
     headers: SYNC_HEADERS,
@@ -58,6 +59,26 @@ export function syncTemplateToDealsFlow(template: TemplateSyncPayload) {
       ],
     }),
   }).catch(() => {});
+
+  // 2) New DealsFlow bridge (server-side proxy injects BRIDGE_SECRET)
+  supabase.functions
+    .invoke("push-template-to-dealsflow", {
+      body: {
+        external_id: template.external_id,
+        name: template.name,
+        subject: template.subject,
+        body_html: template.html,
+        owner_scope: template.owner_scope,
+        owner_agent_slug: template.owner_agent_slug,
+        created_by_agent_slug: template.created_by_agent_slug ?? null,
+        project: template.project || null,
+        category: template.category || null,
+        merge_tags: template.merge_tags || [],
+        sync_hash: template.sync_hash || null,
+        deleted: template.deleted === true,
+      },
+    })
+    .catch(() => {});
 }
 
 /** Resolve the current signed-in user's Presale agent slug, if any. */
