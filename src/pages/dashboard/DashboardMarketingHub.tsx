@@ -23,7 +23,7 @@ import {
 import {
   Mail, Plus, Clock, Trash2, Copy, Tag,
   ChevronRight, Building2, Star, Megaphone, ExternalLink,
-  Search, LayoutGrid, List, Send, Loader2, Users,
+  Search, LayoutGrid, List, Send, Loader2, Users, User,
   Presentation, Share2, PenTool, Image, BarChart3, FileText, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -50,6 +50,9 @@ interface SavedAsset {
   tags: string[] | null;
   is_favorited: boolean;
   last_sent_at: string | null;
+  owner_scope?: string | null;
+  owner_agent_slug?: string | null;
+  created_by_agent_slug?: string | null;
 }
 
 type SortOption = "recent" | "name" | "project";
@@ -135,15 +138,34 @@ export default function DashboardMarketingHub() {
   const fetchAssets = async () => {
     if (!user) return;
     setLoading(true);
+    // Fetch caller's agent slug to split team vs personal
+    const { data: tm } = await (supabase as any)
+      .from("team_members")
+      .select("agent_slug")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const mySlug: string | null = tm?.agent_slug ?? null;
+
     const { data } = await (supabase as any)
       .from("campaign_templates")
       .select("*")
+      .eq("is_active", true)
       .order("updated_at", { ascending: false });
 
     if (data) {
       const all = data as SavedAsset[];
-      setAssets(all.filter((a) => a.user_id === user.id));
-      setAdminTemplates(all.filter((a) => !a.user_id));
+      // My templates: agent-scoped to me, OR (legacy) owned by my user_id with no scope
+      const mine = all.filter((a) =>
+        (a.owner_scope?.startsWith("agent:") && a.owner_agent_slug === mySlug) ||
+        (!a.owner_scope && a.user_id === user.id)
+      );
+      // Team templates: explicit team scope, OR legacy admin templates with no user
+      const team = all.filter((a) =>
+        a.owner_scope?.startsWith("team:") ||
+        (!a.owner_scope && !a.user_id)
+      );
+      setAssets(mine);
+      setAdminTemplates(team);
     }
     setLoading(false);
   };
@@ -217,8 +239,8 @@ export default function DashboardMarketingHub() {
       user_id: user.id,
       tags: asset.tags,
     });
-    if (error) toast.error("Failed to import");
-    else { toast.success("Template imported to your collection"); fetchAssets(); }
+    if (error) toast.error("Failed to clone");
+    else { toast.success("Cloned into your templates"); fetchAssets(); }
     setImporting(null);
   };
 
@@ -428,10 +450,14 @@ export default function DashboardMarketingHub() {
         </div>
       </section>
 
-      {/* Your Templates */}
+      {/* My Templates */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Your Templates ({filteredAssets.length})</p>
+          <div className="flex items-center gap-2">
+            <User className="h-3.5 w-3.5 text-foreground/70" />
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground">My Templates</p>
+            <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0">{filteredAssets.length}</Badge>
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-4">
           <div className="relative flex-1 w-full sm:max-w-xs">
@@ -495,11 +521,19 @@ export default function DashboardMarketingHub() {
         )}
       </section>
 
-      {/* Admin templates */}
+      {/* Team templates — shared across the team, read-only unless admin */}
       {adminTemplates.length > 0 && (
-        <section>
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Company Templates ({adminTemplates.length})</p>
-          <p className="text-xs text-muted-foreground/60 mb-4">Import admin-created templates into your collection</p>
+        <section className="pt-2">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Users className="h-3.5 w-3.5 text-primary" />
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground">
+                Team Templates
+              </p>
+              <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0">{adminTemplates.length}</Badge>
+            </div>
+            <p className="text-[10px] text-muted-foreground/70">Shared with the whole team · clone to edit</p>
+          </div>
           <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}>
             {adminTemplates.map(asset => (
               viewMode === "grid" ? <TemplateCardGrid key={asset.id} asset={asset} isAdmin /> : (
@@ -508,11 +542,14 @@ export default function DashboardMarketingHub() {
                     {getPreviewImage(asset) ? <img src={getPreviewImage(asset)!} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Mail className="h-5 w-5 text-muted-foreground/15" /></div>}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate">{getDisplayName(asset)}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-semibold truncate">{getDisplayName(asset)}</p>
+                      <Badge variant="outline" className="text-[9px] h-4 px-1.5 py-0 shrink-0">Team</Badge>
+                    </div>
                     <p className="text-[11px] text-muted-foreground/60">{timeAgo(asset.updated_at)} · {asset.project_name}</p>
                   </div>
-                  <Button size="sm" className="h-7 text-xs gap-1 shrink-0" disabled={importing === asset.id} onClick={() => handleImport(asset)}>
-                    <Copy className="h-3 w-3" /> {importing === asset.id ? "..." : "Import"}
+                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1 shrink-0" disabled={importing === asset.id} onClick={() => handleImport(asset)}>
+                    <Copy className="h-3 w-3" /> {importing === asset.id ? "..." : "Clone to mine"}
                   </Button>
                 </div>
               )
@@ -548,7 +585,7 @@ export default function DashboardMarketingHub() {
                 <TabsTrigger value="emails" className="gap-1.5 data-[state=active]:shadow-sm">
                   <Mail className="h-3.5 w-3.5" />
                   <span>Email Templates</span>
-                  <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0 ml-1">{assets.length}</Badge>
+                  <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0 ml-1">{assets.length + adminTemplates.length}</Badge>
                 </TabsTrigger>
                 <TabsTrigger value="decks" className="gap-1.5 data-[state=active]:shadow-sm">
                   <Presentation className="h-3.5 w-3.5" />

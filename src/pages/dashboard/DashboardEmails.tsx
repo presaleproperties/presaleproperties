@@ -276,14 +276,30 @@ export default function DashboardEmails() {
   const fetchTemplates = async () => {
     if (!user) return;
     setTemplatesLoading(true);
+    const { data: tm } = await (supabase as any)
+      .from("team_members")
+      .select("agent_slug")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const mySlug: string | null = tm?.agent_slug ?? null;
+
     const { data } = await (supabase as any)
       .from("campaign_templates")
       .select("*")
+      .eq("is_active", true)
       .order("updated_at", { ascending: false });
     if (data) {
       const all = data as SavedTemplate[];
-      setTemplates(all.filter((a) => a.user_id === user.id));
-      setAdminTemplates(all.filter((a) => !a.user_id));
+      const mine = all.filter((a: any) =>
+        (a.owner_scope?.startsWith("agent:") && a.owner_agent_slug === mySlug) ||
+        (!a.owner_scope && a.user_id === user.id)
+      );
+      const team = all.filter((a: any) =>
+        a.owner_scope?.startsWith("team:") ||
+        (!a.owner_scope && !a.user_id)
+      );
+      setTemplates(mine);
+      setAdminTemplates(team);
     }
     setTemplatesLoading(false);
   };
