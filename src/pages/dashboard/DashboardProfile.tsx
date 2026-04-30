@@ -44,6 +44,15 @@ interface AgentProfile {
   verification_notes: string | null;
 }
 
+interface TeamMemberRecord {
+  id: string;
+  full_name: string;
+  title: string | null;
+  photo_url: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
 export default function DashboardProfile() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -52,6 +61,8 @@ export default function DashboardProfile() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [agentProfile, setAgentProfile] = useState<AgentProfile | null>(null);
+  const [teamMember, setTeamMember] = useState<TeamMemberRecord | null>(null);
+  const [teamTitle, setTeamTitle] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const profileForm = useForm<ProfileFormData>({
