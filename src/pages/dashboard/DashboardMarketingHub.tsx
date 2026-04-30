@@ -231,16 +231,40 @@ export default function DashboardMarketingHub() {
   const handleImport = async (asset: SavedAsset) => {
     if (!user) return;
     setImporting(asset.id);
+
+    // Resolve current agent slug so RLS WITH CHECK passes deterministically
+    const { data: tm } = await (supabase as any)
+      .from("team_members")
+      .select("agent_slug")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const slug = tm?.agent_slug;
+
+    if (!slug) {
+      toast.error("No agent profile found for your account. Contact admin.");
+      setImporting(null);
+      return;
+    }
+
     const { error } = await (supabase as any).from("campaign_templates").insert({
-      name: asset.name,
+      name: `${asset.name} (Team copy)`,
       project_name: asset.project_name,
       form_data: asset.form_data,
       thumbnail_url: asset.thumbnail_url,
       user_id: user.id,
       tags: asset.tags,
+      owner_scope: `agent:${slug}`,
+      owner_agent_slug: slug,
+      created_by_agent_slug: slug,
+      is_active: true,
     });
-    if (error) toast.error("Failed to clone");
-    else { toast.success("Cloned into your templates"); fetchAssets(); }
+    if (error) {
+      console.error("[clone team template] failed:", error);
+      toast.error(`Failed to clone: ${error.message || "unknown error"}`);
+    } else {
+      toast.success("Cloned into your templates");
+      fetchAssets();
+    }
     setImporting(null);
   };
 
