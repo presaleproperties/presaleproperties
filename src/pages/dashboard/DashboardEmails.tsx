@@ -1,6 +1,10 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { EmptyState } from "@/components/dashboard/EmptyState";
+import { LoadingState } from "@/components/dashboard/LoadingState";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -459,21 +463,21 @@ export default function DashboardEmails() {
   return (
     <DashboardLayout>
       <div className="space-y-5">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Emails</h1>
-            <p className="text-sm text-muted-foreground">Send, track & manage your email campaigns</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/dashboard/email-builder")} className="gap-2">
-              <Plus className="h-4 w-4" /> New Email
-            </Button>
-            <Button onClick={openCompose} className="gap-2">
-              <Pencil className="h-4 w-4" /> Compose
-            </Button>
-          </div>
-        </div>
+        <PageHeader
+          icon={Mail}
+          title="Emails"
+          description="Send, track & manage your email campaigns"
+          actions={
+            <>
+              <Button variant="outline" onClick={() => navigate("/dashboard/email-builder")} className="gap-2">
+                <Plus className="h-4 w-4" /> New Email
+              </Button>
+              <Button onClick={openCompose} className="gap-2">
+                <Pencil className="h-4 w-4" /> Compose
+              </Button>
+            </>
+          }
+        />
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 bg-muted/50 rounded-lg w-fit">

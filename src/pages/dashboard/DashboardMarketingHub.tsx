@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -586,60 +588,53 @@ export default function DashboardMarketingHub() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full bg-background">
-        {/* Header */}
-        <div className="border-b border-border bg-card px-6 py-5 shrink-0">
-          <div className="flex items-center justify-between max-w-5xl mx-auto">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Megaphone className="h-4.5 w-4.5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold tracking-tight">Marketing Hub</h1>
-                <p className="text-xs text-muted-foreground">Email templates, pitch decks & social content</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="space-y-6">
+        <PageHeader
+          icon={Megaphone}
+          title="Marketing Hub"
+          description="Email templates, pitch decks & social content"
+        />
 
-        <div className="flex-1 overflow-auto">
-          <div className="max-w-5xl mx-auto p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="mb-6 bg-muted/60">
-                <TabsTrigger value="emails" className="gap-1.5 data-[state=active]:shadow-sm">
-                  <Mail className="h-3.5 w-3.5" />
-                  <span>Email Templates</span>
-                  <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0 ml-1">{assets.length + adminTemplates.length}</Badge>
-                </TabsTrigger>
-                <TabsTrigger value="decks" className="gap-1.5 data-[state=active]:shadow-sm">
-                  <Presentation className="h-3.5 w-3.5" />
-                  <span>Pitch Decks</span>
-                </TabsTrigger>
-                <TabsTrigger value="social" className="gap-1.5 data-[state=active]:shadow-sm">
-                  <Share2 className="h-3.5 w-3.5" />
-                  <span>Social Posts</span>
-                </TabsTrigger>
-                <TabsTrigger value="signature" className="gap-1.5 data-[state=active]:shadow-sm">
-                  <PenTool className="h-3.5 w-3.5" />
-                  <span>Signature</span>
-                </TabsTrigger>
-                <TabsTrigger value="assets" className="gap-1.5 data-[state=active]:shadow-sm">
-                  <Image className="h-3.5 w-3.5" />
-                  <span>Assets</span>
-                </TabsTrigger>
-                <TabsTrigger value="flyers" className="gap-1.5 data-[state=active]:shadow-sm">
-                  <FileText className="h-3.5 w-3.5" />
-                  <span>Flyers</span>
-                </TabsTrigger>
-                <TabsTrigger value="ai-copy" className="gap-1.5 data-[state=active]:shadow-sm">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>AI Copy</span>
-                </TabsTrigger>
-                <TabsTrigger value="analytics" className="gap-1.5 data-[state=active]:shadow-sm">
-                  <BarChart3 className="h-3.5 w-3.5" />
-                  <span>Analytics</span>
-                </TabsTrigger>
-              </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          {/* Horizontally scrollable tab strip — fits 8 tabs on mobile without overflow */}
+          <div className="-mx-1 overflow-x-auto pb-1 scrollbar-thin">
+            <TabsList className="bg-muted/60 inline-flex w-max min-w-full">
+              <TabsTrigger value="emails" className="gap-1.5 data-[state=active]:shadow-sm whitespace-nowrap">
+                <Mail className="h-3.5 w-3.5" />
+                <span>Emails</span>
+                <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0 ml-1">{assets.length + adminTemplates.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="decks" className="gap-1.5 data-[state=active]:shadow-sm whitespace-nowrap">
+                <Presentation className="h-3.5 w-3.5" />
+                <span>Decks</span>
+              </TabsTrigger>
+              <TabsTrigger value="social" className="gap-1.5 data-[state=active]:shadow-sm whitespace-nowrap">
+                <Share2 className="h-3.5 w-3.5" />
+                <span>Social</span>
+              </TabsTrigger>
+              <TabsTrigger value="signature" className="gap-1.5 data-[state=active]:shadow-sm whitespace-nowrap">
+                <PenTool className="h-3.5 w-3.5" />
+                <span>Signature</span>
+              </TabsTrigger>
+              <TabsTrigger value="assets" className="gap-1.5 data-[state=active]:shadow-sm whitespace-nowrap">
+                <Image className="h-3.5 w-3.5" />
+                <span>Assets</span>
+              </TabsTrigger>
+              <TabsTrigger value="flyers" className="gap-1.5 data-[state=active]:shadow-sm whitespace-nowrap">
+                <FileText className="h-3.5 w-3.5" />
+                <span>Flyers</span>
+              </TabsTrigger>
+              <TabsTrigger value="ai-copy" className="gap-1.5 data-[state=active]:shadow-sm whitespace-nowrap">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>AI Copy</span>
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="gap-1.5 data-[state=active]:shadow-sm whitespace-nowrap">
+                <BarChart3 className="h-3.5 w-3.5" />
+                <span>Analytics</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          <div className="mt-6">
 
               <TabsContent value="emails">
                 <EmailTemplatesContent />
@@ -687,9 +682,8 @@ export default function DashboardMarketingHub() {
               <TabsContent value="analytics">
                 <MarketingAnalytics />
               </TabsContent>
-            </Tabs>
-          </div>
-        </div>
+            </div>
+          </Tabs>
       </div>
 
       {/* Quick Send Dialog */}
