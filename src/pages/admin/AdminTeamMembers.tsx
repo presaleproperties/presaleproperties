@@ -23,7 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, GripVertical, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, GripVertical, Users, KeyRound, Copy, Check, RotateCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { TeamMemberPhotoUpload } from "@/components/admin/TeamMemberPhotoUpload";
 
@@ -40,9 +40,10 @@ interface TeamMember {
   specializations: string[];
   sort_order: number;
   is_active: boolean;
+  user_id: string | null;
 }
-
-const emptyMember: Omit<TeamMember, "id"> = {
+type TeamMemberForm = Omit<TeamMember, "id" | "user_id">;
+const emptyMember: TeamMemberForm = {
   full_name: "",
   title: "",
   email: "",
@@ -60,8 +61,11 @@ export default function AdminTeamMembers() {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
-  const [formData, setFormData] = useState<Omit<TeamMember, "id">>(emptyMember);
+  const [formData, setFormData] = useState<TeamMemberForm>(emptyMember);
   const [specializationInput, setSpecializationInput] = useState("");
+  const [credentialsDialog, setCredentialsDialog] = useState<{ open: boolean; email: string; password: string; mode: "create" | "reset" }>({ open: false, email: "", password: "", mode: "create" });
+  const [actingOn, setActingOn] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const { data: teamMembers = [], isLoading } = useQuery({
     queryKey: ["admin-team-members"],
@@ -76,12 +80,13 @@ export default function AdminTeamMembers() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (member: Omit<TeamMember, "id"> & { id?: string }) => {
+    mutationFn: async (member: TeamMemberForm & { id?: string }) => {
       if (member.id) {
+        const { id, ...updates } = member;
         const { error } = await supabase
           .from("team_members")
-          .update(member)
-          .eq("id", member.id);
+          .update(updates)
+          .eq("id", id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("team_members").insert(member);
@@ -160,6 +165,42 @@ export default function AdminTeamMembers() {
       ...formData,
       specializations: formData.specializations.filter((s) => s !== spec),
     });
+  };
+
+  const handleCreateOrResetLogin = async (member: TeamMember, mode: "create" | "reset") => {
+    if (!member.email) {
+      toast.error("Add an email to this team member first");
+      return;
+    }
+    setActingOn(member.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-create-team-login", {
+        body: {
+          action: mode,
+          team_member_id: member.id,
+          email: member.email,
+          full_name: member.full_name,
+          phone: member.phone,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const password = (data as any).temp_password as string;
+      setCredentialsDialog({ open: true, email: member.email, password, mode });
+      queryClient.invalidateQueries({ queryKey: ["admin-team-members"] });
+      toast.success(mode === "create" ? "Login created" : "Password reset");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to set up login");
+    } finally {
+      setActingOn(null);
+    }
+  };
+
+  const copyCredentials = async () => {
+    const text = `Email: ${credentialsDialog.email}\nTemporary password: ${credentialsDialog.password}\n\nLogin at: ${window.location.origin}/login\n(You'll be asked to set a new password on first sign-in.)`;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -366,19 +407,20 @@ export default function AdminTeamMembers() {
                 <TableHead>Title</TableHead>
                 <TableHead>Specializations</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Portal Access</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : teamMembers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No team members yet. Add your first one!
                   </TableCell>
                 </TableRow>
@@ -431,6 +473,34 @@ export default function AdminTeamMembers() {
                         {member.is_active ? "Active" : "Hidden"}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      {member.user_id ? (
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="gap-1">
+                            <Check className="h-3 w-3" /> Linked
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCreateOrResetLogin(member, "reset")}
+                            disabled={actingOn === member.id}
+                            title="Reset password"
+                          >
+                            <RotateCw className="h-3.5 w-3.5 mr-1" /> Reset
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCreateOrResetLogin(member, "create")}
+                          disabled={actingOn === member.id || !member.email}
+                        >
+                          <KeyRound className="h-3.5 w-3.5 mr-1" />
+                          {actingOn === member.id ? "Creating…" : "Create Login"}
+                        </Button>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
@@ -460,6 +530,40 @@ export default function AdminTeamMembers() {
             </TableBody>
           </Table>
         </div>
+
+        {/* Credentials reveal dialog */}
+        <Dialog open={credentialsDialog.open} onOpenChange={(open) => setCredentialsDialog({ ...credentialsDialog, open })}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <KeyRound className="h-5 w-5 text-primary" />
+                {credentialsDialog.mode === "create" ? "Login Created" : "Password Reset"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Share these credentials with the team member. They'll be asked to set a new password on first sign-in.
+              </p>
+              <div className="rounded-lg border bg-muted/40 p-4 space-y-2 font-mono text-sm">
+                <div><span className="text-muted-foreground">Email:</span> {credentialsDialog.email}</div>
+                <div><span className="text-muted-foreground">Temp password:</span> {credentialsDialog.password}</div>
+                <div><span className="text-muted-foreground">Login URL:</span> {window.location.origin}/login</div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={copyCredentials} className="flex-1">
+                  {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                  {copied ? "Copied!" : "Copy Credentials"}
+                </Button>
+                <Button variant="outline" onClick={() => setCredentialsDialog({ ...credentialsDialog, open: false })}>
+                  Done
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                The team member can also sign in with Google using this email address.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );

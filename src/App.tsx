@@ -58,6 +58,7 @@ const DeficiencyWalkthroughGuide = lazy(() => import("./pages/DeficiencyWalkthro
 const FAQ = lazy(() => import("./pages/FAQ"));
 const MortgageCalculatorPage = lazy(() => import("./pages/MortgageCalculatorPage"));
 const Login = lazy(() => import("./pages/Login"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 const DashboardOverview = lazy(() => import("./pages/dashboard/DashboardOverview"));
 const DashboardListings = lazy(() => import("./pages/dashboard/DashboardListings"));
 const DashboardLeads = lazy(() => import("./pages/dashboard/DashboardLeads"));
@@ -86,7 +87,7 @@ const AdminBlogs = lazy(() => import("./pages/admin/AdminBlogs"));
 const AdminBlogForm = lazy(() => import("./pages/admin/AdminBlogForm"));
 const AdminBlogImport = lazy(() => import("./pages/admin/AdminBlogImport"));
 const AdminAgents = lazy(() => import("./pages/admin/AdminAgents"));
-const AdminTeamApprovals = lazy(() => import("./pages/admin/AdminTeamApprovals"));
+
 const AdminAssignments = lazy(() => import("./pages/admin/AdminAssignments"));
 const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
@@ -355,6 +356,7 @@ const App = () => (
             <Route path="/maple-ridge-town-centre-presale" element={<NeighborhoodLandingPage />} />
             
             <Route path="/login" element={<Login />} />
+            <Route path="/change-password" element={<ChangePassword />} />
             
             {/* Developer Portal Routes */}
             <Route path="/developer-portal" element={<DeveloperPortalLanding />} />
@@ -422,7 +424,7 @@ const App = () => (
             <Route path="/admin/blogs/:id/edit" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
             
             <Route path="/admin/agents" element={<AdminProtectedRoute><AdminAgents /></AdminProtectedRoute>} />
-            <Route path="/admin/team-approvals" element={<AdminProtectedRoute><AdminTeamApprovals /></AdminProtectedRoute>} />
+            
             <Route path="/admin/leads" element={<AdminProtectedRoute><AdminLeads /></AdminProtectedRoute>} />
             <Route path="/admin/leads/analytics" element={<AdminProtectedRoute><AdminLeadAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/paid-ads" element={<AdminProtectedRoute><AdminPaidAdsDashboard /></AdminProtectedRoute>} />
