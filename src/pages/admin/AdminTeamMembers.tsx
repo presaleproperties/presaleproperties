@@ -407,19 +407,20 @@ export default function AdminTeamMembers() {
                 <TableHead>Title</TableHead>
                 <TableHead>Specializations</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Portal Access</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : teamMembers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No team members yet. Add your first one!
                   </TableCell>
                 </TableRow>
@@ -471,6 +472,34 @@ export default function AdminTeamMembers() {
                       <Badge variant={member.is_active ? "default" : "secondary"}>
                         {member.is_active ? "Active" : "Hidden"}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {member.user_id ? (
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="gap-1">
+                            <Check className="h-3 w-3" /> Linked
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCreateOrResetLogin(member, "reset")}
+                            disabled={actingOn === member.id}
+                            title="Reset password"
+                          >
+                            <RotateCw className="h-3.5 w-3.5 mr-1" /> Reset
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCreateOrResetLogin(member, "create")}
+                          disabled={actingOn === member.id || !member.email}
+                        >
+                          <KeyRound className="h-3.5 w-3.5 mr-1" />
+                          {actingOn === member.id ? "Creating…" : "Create Login"}
+                        </Button>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
