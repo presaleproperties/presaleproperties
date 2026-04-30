@@ -421,16 +421,29 @@ export default function DashboardEmails() {
     if (!user) return;
     setImporting(t.id);
     try {
+      // Resolve current agent slug so RLS WITH CHECK passes
+      const { data: tm } = await (supabase as any)
+        .from("team_members")
+        .select("agent_slug")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const slug = tm?.agent_slug;
+      if (!slug) throw new Error("No agent profile found for your account. Contact admin.");
+
       const { error } = await (supabase as any)
         .from("campaign_templates")
         .insert({
-          name: t.name,
+          name: `${t.name} (Team copy)`,
           project_name: t.project_name,
           form_data: t.form_data,
           thumbnail_url: t.thumbnail_url,
           brochure_url: (t as any).brochure_url || null,
           pricing_sheet_url: (t as any).pricing_sheet_url || null,
           user_id: user.id,
+          owner_scope: `agent:${slug}`,
+          owner_agent_slug: slug,
+          created_by_agent_slug: slug,
+          is_active: true,
         });
       if (error) throw error;
       toast.success("Template imported to your library!");
