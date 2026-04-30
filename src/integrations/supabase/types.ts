@@ -4644,7 +4644,7 @@ export type Database = {
       }
       team_members: {
         Row: {
-          agent_slug: string
+          agent_slug: string | null
           bio: string | null
           created_at: string
           email: string | null
@@ -4662,7 +4662,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          agent_slug: string
+          agent_slug?: string | null
           bio?: string | null
           created_at?: string
           email?: string | null
@@ -4680,7 +4680,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          agent_slug?: string
+          agent_slug?: string | null
           bio?: string | null
           created_at?: string
           email?: string | null
