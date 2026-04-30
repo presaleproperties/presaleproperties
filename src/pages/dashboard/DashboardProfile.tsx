@@ -497,70 +497,72 @@ export default function DashboardProfile() {
           </CardContent>
         </Card>
 
-        {/* License Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              License Information
-            </CardTitle>
-            <CardDescription>
-              Your real estate license details for verification
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...agentForm}>
-              <form onSubmit={agentForm.handleSubmit(handleAgentSubmit)} className="space-y-4">
-                <FormField
-                  control={agentForm.control}
-                  name="license_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>License Number</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        {/* License Information — only for non-team agents */}
+        {!teamMember && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                License Information
+              </CardTitle>
+              <CardDescription>
+                Your real estate license details for verification
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...agentForm}>
+                <form onSubmit={agentForm.handleSubmit(handleAgentSubmit)} className="space-y-4">
+                  <FormField
+                    control={agentForm.control}
+                    name="license_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>License Number</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={agentForm.control}
-                  name="brokerage_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Brokerage Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={agentForm.control}
+                    name="brokerage_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Brokerage Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={agentForm.control}
-                  name="brokerage_address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Brokerage Address</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={agentForm.control}
+                    name="brokerage_address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Brokerage Address</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <Button type="submit" disabled={saving}>
-                  {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save License Info
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+                  <Button type="submit" disabled={saving}>
+                    {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save License Info
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );
