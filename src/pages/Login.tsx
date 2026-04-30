@@ -68,13 +68,37 @@ export default function Login() {
     }
 
     // Check team member status — block pending/rejected
-    const { data: teamProfile } = await (supabase as any)
+    let { data: teamProfile } = await (supabase as any)
       .from("team_member_profiles")
       .select("status")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (teamProfile && teamProfile.status !== "approved") {
+    // Check if they have an admin or agent role (full access bypasses approval)
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+    const roleNames = (roles || []).map((r: any) => r.role);
+    const hasFullAccess = roleNames.includes("admin") || roleNames.includes("agent");
+
+    // First-time Google sign-up: auto-create a pending team_member_profile
+    if (!teamProfile && !hasFullAccess) {
+      const fullName =
+        (user.user_metadata as any)?.full_name ||
+        (user.user_metadata as any)?.name ||
+        user.email?.split("@")[0] ||
+        "Team Member";
+      await (supabase as any).from("team_member_profiles").insert({
+        user_id: user.id,
+        full_name: fullName,
+        email: user.email,
+        status: "pending",
+      });
+      teamProfile = { status: "pending" };
+    }
+
+    if (teamProfile && teamProfile.status !== "approved" && !hasFullAccess) {
       await signOut();
       toast({
         title: teamProfile.status === "rejected" ? "Access denied" : "Pending approval",
