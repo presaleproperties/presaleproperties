@@ -530,6 +530,40 @@ export default function AdminTeamMembers() {
             </TableBody>
           </Table>
         </div>
+
+        {/* Credentials reveal dialog */}
+        <Dialog open={credentialsDialog.open} onOpenChange={(open) => setCredentialsDialog({ ...credentialsDialog, open })}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <KeyRound className="h-5 w-5 text-primary" />
+                {credentialsDialog.mode === "create" ? "Login Created" : "Password Reset"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Share these credentials with the team member. They'll be asked to set a new password on first sign-in.
+              </p>
+              <div className="rounded-lg border bg-muted/40 p-4 space-y-2 font-mono text-sm">
+                <div><span className="text-muted-foreground">Email:</span> {credentialsDialog.email}</div>
+                <div><span className="text-muted-foreground">Temp password:</span> {credentialsDialog.password}</div>
+                <div><span className="text-muted-foreground">Login URL:</span> {window.location.origin}/login</div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={copyCredentials} className="flex-1">
+                  {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                  {copied ? "Copied!" : "Copy Credentials"}
+                </Button>
+                <Button variant="outline" onClick={() => setCredentialsDialog({ ...credentialsDialog, open: false })}>
+                  Done
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                The team member can also sign in with Google using this email address.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );
