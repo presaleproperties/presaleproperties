@@ -198,6 +198,30 @@ export default function Login() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}/login`,
+    });
+
+    if (result.error) {
+      setIsLoading(false);
+      toast({
+        title: "Google sign-in failed",
+        description: result.error.message || "Please try again or use email/password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (result.redirected) {
+      // Browser is redirecting to Google
+      return;
+    }
+    // Tokens received — useEffect will pick up the user and route
+    setIsLoading(false);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <MetaTags
