@@ -784,11 +784,11 @@ export type Database = {
           last_sent_at?: string | null
           name: string
           owner_agent_slug?: string | null
-          owner_scope: string
+          owner_scope?: string
           pricing_sheet_url?: string | null
           project_name?: string
           scope?: string
-          slug: string
+          slug?: string
           sync_hash?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
