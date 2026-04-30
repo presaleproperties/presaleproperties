@@ -161,6 +161,17 @@ export default function DashboardProfile() {
 
       if (error) throw error;
 
+      // Mirror to team_members so signatures, marketing hub, etc. stay in sync
+      if (teamMember) {
+        await (supabase as any)
+          .from("team_members")
+          .update({
+            full_name: data.full_name,
+            phone: data.phone || null,
+          })
+          .eq("user_id", user.id);
+      }
+
       toast({
         title: "Profile updated",
         description: "Your profile information has been saved.",
