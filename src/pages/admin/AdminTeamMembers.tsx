@@ -23,7 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, GripVertical, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, GripVertical, Users, KeyRound, Copy, Check, RotateCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { TeamMemberPhotoUpload } from "@/components/admin/TeamMemberPhotoUpload";
 
@@ -40,6 +40,7 @@ interface TeamMember {
   specializations: string[];
   sort_order: number;
   is_active: boolean;
+  user_id: string | null;
 }
 
 const emptyMember: Omit<TeamMember, "id"> = {
