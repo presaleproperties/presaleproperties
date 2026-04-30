@@ -42,40 +42,34 @@ interface NavSection {
 
 const navSections: NavSection[] = [
   {
-    label: "Leads",
+    label: "Workspace",
     items: [
-      { 
-        label: "Overview", 
-        href: "/dashboard", 
+      {
+        label: "Overview",
+        href: "/dashboard",
         icon: LayoutDashboard,
-        description: "Dashboard & quick actions"
-      },
-      { 
-        label: "My Leads", 
-        href: "/dashboard/leads", 
-        icon: Users,
-        description: "Manage & prioritize clients"
+        description: "Quick actions & shortcuts"
       },
     ],
   },
   {
     label: "Marketing",
     items: [
-      { 
-        label: "Email Builder", 
-        href: "/dashboard/email-builder", 
+      {
+        label: "Email Builder",
+        href: "/dashboard/email-builder",
         icon: PenTool,
         description: "Build & send campaigns"
       },
-      { 
-        label: "Marketing Hub", 
-        href: "/dashboard/marketing-hub", 
+      {
+        label: "Marketing Hub",
+        href: "/dashboard/marketing-hub",
         icon: Megaphone,
         description: "Templates, decks & social"
       },
-      { 
-        label: "Email Tracking", 
-        href: "/dashboard/emails", 
+      {
+        label: "Email Tracking",
+        href: "/dashboard/emails",
         icon: Mail,
         description: "Opens & engagement stats"
       },
@@ -84,24 +78,24 @@ const navSections: NavSection[] = [
   {
     label: "Account",
     items: [
-      { 
-        label: "Project Docs", 
-        href: "/dashboard/projects", 
+      {
+        label: "Project Docs",
+        href: "/dashboard/projects",
         icon: FolderOpen,
         description: "Floorplans & brochures",
         badge: "Premium"
       },
-      { 
-        label: "My Listings", 
-        href: "/dashboard/listings", 
+      {
+        label: "My Listings",
+        href: "/dashboard/listings",
         icon: FileText,
         description: "Assignment marketplace"
       },
-      { 
-        label: "Profile", 
-        href: "/dashboard/profile", 
+      {
+        label: "Profile",
+        href: "/dashboard/profile",
         icon: User,
-        description: "License & settings"
+        description: "Your team profile"
       },
     ],
   },
@@ -110,9 +104,9 @@ const navSections: NavSection[] = [
 // Bottom tabs for mobile
 const mobileBottomTabs = [
   { label: "Home", href: "/dashboard", icon: LayoutDashboard, exact: true },
-  { label: "Leads", href: "/dashboard/leads", icon: Users, exact: false },
   { label: "Marketing", href: "/dashboard/marketing-hub", icon: Megaphone, exact: false },
   { label: "Email", href: "/dashboard/email-builder", icon: PenTool, exact: false },
+  { label: "Listings", href: "/dashboard/listings", icon: FileText, exact: false },
   { label: "Profile", href: "/dashboard/profile", icon: User, exact: false },
 ];
 
