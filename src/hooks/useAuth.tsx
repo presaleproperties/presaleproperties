@@ -30,22 +30,27 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authReady, setAuthReady] = useState(false);
+  const [roleReady, setRoleReady] = useState(false);
   const [role, setRole] = useState<AppRole>("user");
 
   const isAdmin = role === "admin";
   const isAgent = role === "agent" || role === "admin";
   const isTeamMember = role === "team_member" || role === "admin";
 
+  // `loading` stays true until BOTH the session AND the role have been resolved.
+  // This prevents ProtectedRoute from redirecting before roles load.
+  const loading = !authReady || (!!user && !roleReady);
+
   const fetchRole = async (userId: string) => {
+    setRoleReady(false);
     const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
       .order("role");
-    
+
     if (data && data.length > 0) {
-      // Prioritize: admin > agent > team_member > developer > moderator > user
       const roles = data.map((r) => r.role as AppRole);
       if (roles.includes("admin")) setRole("admin");
       else if (roles.includes("agent")) setRole("agent");
@@ -56,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       setRole("user");
     }
+    setRoleReady(true);
   };
 
   useEffect(() => {
@@ -63,12 +69,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
-        
+        setAuthReady(true);
+
         if (session?.user) {
+          setRoleReady(false);
           setTimeout(() => fetchRole(session.user.id), 0);
         } else {
           setRole("user");
+          setRoleReady(true);
         }
       }
     );
@@ -76,10 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
-      
+      setAuthReady(true);
+
       if (session?.user) {
         fetchRole(session.user.id);
+      } else {
+        setRoleReady(true);
       }
     });
 
