@@ -99,28 +99,45 @@ export default function DashboardProfile() {
         .eq("user_id", user.id)
         .single();
 
-      if (profile) {
-        profileForm.reset({
-          full_name: profile.full_name || "",
-          phone: profile.phone || "",
-        });
-        setAvatarUrl(profile.avatar_url);
+      // Fetch team_members record (internal team gets pre-filled identity here)
+      const { data: tm } = await (supabase as any)
+        .from("team_members")
+        .select("id, full_name, title, photo_url, phone, email")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (tm) {
+        setTeamMember(tm as TeamMemberRecord);
+        setTeamTitle(tm.title || "");
       }
 
-      // Fetch agent profile
-      const { data: agent } = await (supabase as any)
-        .from("agent_profiles")
-        .select("license_number, brokerage_name, brokerage_address, verification_status, verification_notes")
-        .eq("user_id", user.id)
-        .single();
+      // Pre-fill: prefer team_member values (canonical for internal team), fall back to profile
+      const resolvedFullName = tm?.full_name || profile?.full_name || "";
+      const resolvedPhone = tm?.phone || profile?.phone || "";
+      const resolvedAvatar = tm?.photo_url || profile?.avatar_url || null;
 
-      if (agent) {
-        setAgentProfile(agent);
-        agentForm.reset({
-          license_number: agent.license_number,
-          brokerage_name: agent.brokerage_name,
-          brokerage_address: agent.brokerage_address || "",
-        });
+      profileForm.reset({
+        full_name: resolvedFullName,
+        phone: resolvedPhone,
+      });
+      setAvatarUrl(resolvedAvatar);
+
+      // Only load agent license info for non-team members
+      if (!tm) {
+        const { data: agent } = await (supabase as any)
+          .from("agent_profiles")
+          .select("license_number, brokerage_name, brokerage_address, verification_status, verification_notes")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (agent) {
+          setAgentProfile(agent);
+          agentForm.reset({
+            license_number: agent.license_number,
+            brokerage_name: agent.brokerage_name,
+            brokerage_address: agent.brokerage_address || "",
+          });
+        }
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
