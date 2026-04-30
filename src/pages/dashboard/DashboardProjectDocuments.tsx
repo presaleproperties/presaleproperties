@@ -186,10 +186,10 @@ export default function DashboardProjectDocuments() {
                   className="pl-10"
                 />
               </div>
-              <div className="flex gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
                 <Select value={selectedCity} onValueChange={setSelectedCity}>
-                  <SelectTrigger className="w-[160px]">
-                    <Filter className="h-4 w-4 mr-2" />
+                  <SelectTrigger className="w-full sm:w-[160px]">
+                    <Filter className="h-4 w-4 mr-2 shrink-0" />
                     <SelectValue placeholder="All Cities" />
                   </SelectTrigger>
                   <SelectContent>
@@ -202,7 +202,7 @@ export default function DashboardProjectDocuments() {
                   </SelectContent>
                 </Select>
                 <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-[160px]">
+                  <SelectTrigger className="w-full sm:w-[160px]">
                     <SelectValue placeholder="All Types" />
                   </SelectTrigger>
                   <SelectContent>

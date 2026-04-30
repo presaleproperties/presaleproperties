@@ -27,6 +27,9 @@ import {
   Lock,
   Unlock,
 } from "lucide-react";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { LoadingState } from "@/components/dashboard/LoadingState";
+import { EmptyState } from "@/components/dashboard/EmptyState";
 import { formatDistanceToNow } from "date-fns";
 
 interface PitchDeck {
@@ -260,41 +263,34 @@ export default function DashboardDecks() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Pitch Decks</h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Create and share investor-ready project presentations
-            </p>
-          </div>
-          <Button onClick={() => navigate("/dashboard/decks/new")}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Deck
-          </Button>
-        </div>
+        <PageHeader
+          icon={Presentation}
+          title="Pitch Decks"
+          description="Create and share investor-ready project presentations"
+          actions={
+            <Button onClick={() => navigate("/dashboard/decks/new")} className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              New Deck
+            </Button>
+          }
+        />
 
         {/* Content */}
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
+          <LoadingState variant="cards" count={3} />
         ) : decks.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="py-16 text-center space-y-4">
-              <Presentation className="h-12 w-12 text-muted-foreground/30 mx-auto" />
-              <div>
-                <p className="font-semibold text-foreground">No pitch decks yet</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Create your first shareable investor deck for a presale project
-                </p>
-              </div>
+          <EmptyState
+            variant="dashed"
+            icon={Presentation}
+            title="No pitch decks yet"
+            description="Create your first shareable investor deck for a presale project."
+            action={
               <Button onClick={() => navigate("/dashboard/decks/new")}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Deck
               </Button>
-            </CardContent>
-          </Card>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {decks.map((deck) => (

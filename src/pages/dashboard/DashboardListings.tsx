@@ -48,6 +48,8 @@ import {
   Star,
 } from "lucide-react";
 import { AssignmentManagementHero } from "@/components/assignments/AssignmentManagementHero";
+import { LoadingState } from "@/components/dashboard/LoadingState";
+import { EmptyState } from "@/components/dashboard/EmptyState";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -561,31 +563,30 @@ export default function DashboardListings() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all">All ({listings.length})</TabsTrigger>
-            <TabsTrigger value="active">Active ({listings.filter(l => l.status === "published").length})</TabsTrigger>
-            <TabsTrigger value="pending">Pending ({listings.filter(l => l.status === "pending_approval" || l.status === "pending_payment").length})</TabsTrigger>
-            <TabsTrigger value="drafts">Drafts ({listings.filter(l => l.status === "draft").length})</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <TabsList className="w-max">
+              <TabsTrigger value="all">All ({listings.length})</TabsTrigger>
+              <TabsTrigger value="active">Active ({listings.filter(l => l.status === "published").length})</TabsTrigger>
+              <TabsTrigger value="pending">Pending ({listings.filter(l => l.status === "pending_approval" || l.status === "pending_payment").length})</TabsTrigger>
+              <TabsTrigger value="drafts">Drafts ({listings.filter(l => l.status === "draft").length})</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value={activeTab} className="mt-6">
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
+              <LoadingState variant="rows" count={3} />
             ) : filteredListings.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No assignments found</h3>
-                  <p className="text-muted-foreground mb-4">
-                    {activeTab === "all" ? "Create your first assignment to get started" : `No ${activeTab} assignments`}
-                  </p>
+              <EmptyState
+                variant="card"
+                icon={Building2}
+                title="No assignments found"
+                description={activeTab === "all" ? "Create your first assignment to get started." : `No ${activeTab} assignments yet.`}
+                action={
                   <Button onClick={() => setAddOpen(true)} className="gap-2">
                     <Plus className="h-4 w-4" /> Create Assignment
                   </Button>
-                </CardContent>
-              </Card>
+                }
+              />
             ) : (
               <div className="space-y-4">
                 {filteredListings.map((listing) => {
