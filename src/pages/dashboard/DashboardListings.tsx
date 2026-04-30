@@ -563,12 +563,14 @@ export default function DashboardListings() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all">All ({listings.length})</TabsTrigger>
-            <TabsTrigger value="active">Active ({listings.filter(l => l.status === "published").length})</TabsTrigger>
-            <TabsTrigger value="pending">Pending ({listings.filter(l => l.status === "pending_approval" || l.status === "pending_payment").length})</TabsTrigger>
-            <TabsTrigger value="drafts">Drafts ({listings.filter(l => l.status === "draft").length})</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <TabsList className="w-max">
+              <TabsTrigger value="all">All ({listings.length})</TabsTrigger>
+              <TabsTrigger value="active">Active ({listings.filter(l => l.status === "published").length})</TabsTrigger>
+              <TabsTrigger value="pending">Pending ({listings.filter(l => l.status === "pending_approval" || l.status === "pending_payment").length})</TabsTrigger>
+              <TabsTrigger value="drafts">Drafts ({listings.filter(l => l.status === "draft").length})</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value={activeTab} className="mt-6">
             {loading ? (
