@@ -167,6 +167,42 @@ export default function AdminTeamMembers() {
     });
   };
 
+  const handleCreateOrResetLogin = async (member: TeamMember, mode: "create" | "reset") => {
+    if (!member.email) {
+      toast.error("Add an email to this team member first");
+      return;
+    }
+    setActingOn(member.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-create-team-login", {
+        body: {
+          action: mode,
+          team_member_id: member.id,
+          email: member.email,
+          full_name: member.full_name,
+          phone: member.phone,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const password = (data as any).temp_password as string;
+      setCredentialsDialog({ open: true, email: member.email, password, mode });
+      queryClient.invalidateQueries({ queryKey: ["admin-team-members"] });
+      toast.success(mode === "create" ? "Login created" : "Password reset");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to set up login");
+    } finally {
+      setActingOn(null);
+    }
+  };
+
+  const copyCredentials = async () => {
+    const text = `Email: ${credentialsDialog.email}\nTemporary password: ${credentialsDialog.password}\n\nLogin at: ${window.location.origin}/login\n(You'll be asked to set a new password on first sign-in.)`;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
