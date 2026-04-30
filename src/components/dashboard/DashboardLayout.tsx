@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useTeamMode } from "@/components/team/TeamModeContext";
 import { 
   LayoutDashboard, 
   Users, 
@@ -114,8 +115,6 @@ const mobileBottomTabs = [
   { label: "Email", href: "/dashboard/email-builder", icon: PenTool, exact: false },
   { label: "Profile", href: "/dashboard/profile", icon: User, exact: false },
 ];
-
-import { useTeamMode } from "@/components/team/TeamModeContext";
 
 export function DashboardLayout({ children, noPadding, teamMode: teamModeProp }: DashboardLayoutProps) {
   const location = useLocation();
