@@ -63,6 +63,17 @@ const TEAM_AGENTS: AgentInfo[] = [
     brokerage: "Real Broker",
     instagram: "",
   },
+  {
+    id: "zara",
+    fullName: "Zara Malik",
+    title: "Operations & Partnerships Manager",
+    photoUrl: "https://thvlisplwqhtjpzpedhq.supabase.co/storage/v1/object/public/avatars/team%2Fzara-malik-headshot.png",
+    phone: "(672) 258-1100",
+    email: "admin@presaleproperties.com",
+    website: "https://presaleproperties.com",
+    brokerage: "Real Broker",
+    instagram: "",
+  },
 ];
 
 type LayoutVariant = "horizontal" | "stacked";
