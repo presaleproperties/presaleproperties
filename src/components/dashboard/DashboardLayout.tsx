@@ -128,12 +128,13 @@ export function DashboardLayout({ children, noPadding, teamMode: teamModeProp }:
 
   useEffect(() => {
     if (!user) return;
-    import("@/integrations/supabase/client").then(({ supabase }) => {
-      supabase.from("profiles").select("full_name, avatar_url").eq("user_id", user.id).maybeSingle()
-        .then(({ data }) => {
-          if (data?.full_name) setFullName(data.full_name);
-          if (data?.avatar_url) setAvatarUrl(data.avatar_url);
-        });
+    import("@/integrations/supabase/client").then(async ({ supabase }) => {
+      const [{ data: team }, { data: profile }] = await Promise.all([
+        (supabase as any).from("team_members").select("full_name, photo_url").eq("user_id", user.id).maybeSingle(),
+        supabase.from("profiles").select("full_name, avatar_url").eq("user_id", user.id).maybeSingle(),
+      ]);
+      setFullName(team?.full_name || profile?.full_name || null);
+      setAvatarUrl(team?.photo_url || profile?.avatar_url || null);
     }).catch((err) => console.error("[DashboardLayout] profile fetch error:", err));
   }, [user]);
 
