@@ -419,6 +419,8 @@ export default function AdminEmailBuilderHub() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete "${name}"?`)) return;
     setDeleting(id);
+    const { syncTemplateDeletionToDealsFlow } = await import("@/lib/syncTemplateToDealsFlow");
+    await syncTemplateDeletionToDealsFlow(id);
     const { error } = await supabase.from("campaign_templates" as any).delete().eq("id", id);
     if (error) toast.error("Failed to delete");
     else { toast.success("Deleted"); await fetchTemplates(); }

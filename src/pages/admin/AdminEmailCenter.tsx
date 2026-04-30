@@ -84,6 +84,8 @@ function QuickSendTab({
   const [previewAsset, setPreviewAsset] = useState<SavedAsset | null>(null);
 
   const handleDelete = async (id: string) => {
+    const { syncTemplateDeletionToDealsFlow } = await import("@/lib/syncTemplateToDealsFlow");
+    await syncTemplateDeletionToDealsFlow(id);
     const { error } = await (supabase as any).from("campaign_templates").delete().eq("id", id);
     if (!error) { toast.success("Template deleted"); onRefreshCampaigns(); } else { toast.error("Failed to delete"); }
   };

@@ -1248,34 +1248,43 @@ export default function AdminEmailBuilder() {
         agentId: selectedAgent?.id,
         finalHtml,
       };
+      let savedRow: any = null;
       if (overwriteId) {
-        // Update existing template
-        const { error } = await supabase.from("campaign_templates").update({
+        const { data, error } = await supabase.from("campaign_templates").update({
           name: templateName.trim(),
           project_name: vars.projectName || "Untitled",
           form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
           user_id: user?.id || null,
-        }).eq("id", overwriteId);
+        }).eq("id", overwriteId).select().maybeSingle();
         if (error) throw error;
+        savedRow = data;
         toast.success("Template updated!");
       } else {
-        const { error } = await supabase.from("campaign_templates").insert([{
+        const { data, error } = await supabase.from("campaign_templates").insert([{
           name: templateName.trim(),
           project_name: vars.projectName || "Untitled",
           form_data: form_data as unknown as import("@/integrations/supabase/types").Json,
           user_id: user?.id || null,
-        }]);
+        }]).select().maybeSingle();
         if (error) throw error;
+        savedRow = data;
         toast.success("Template saved!");
       }
 
-      // Sync to DealsFlow CRM (fire-and-forget)
-      syncTemplateToDealsFlow({
-        name: templateName.trim(),
-        subject: vars.subjectLine || templateName.trim(),
-        html: finalHtml,
-        project: vars.projectName || undefined,
-      });
+      // Sync to DealsFlow CRM (fire-and-forget) — uses scope set by DB trigger
+      if (savedRow) {
+        syncTemplateToDealsFlow({
+          external_id: savedRow.slug || savedRow.id,
+          name: templateName.trim(),
+          subject: vars.subjectLine || templateName.trim(),
+          html: finalHtml,
+          owner_scope: savedRow.owner_scope || "team:presale",
+          owner_agent_slug: savedRow.owner_agent_slug || null,
+          created_by_agent_slug: savedRow.created_by_agent_slug || null,
+          sync_hash: savedRow.sync_hash || undefined,
+          project: vars.projectName || undefined,
+        });
+      }
       setSaveDialogOpen(false);
       setTemplateName("");
       setOverwriteId(null);
@@ -1305,6 +1314,8 @@ export default function AdminEmailBuilder() {
   };
 
   const handleDeleteTemplate = async (id: string) => {
+    const { syncTemplateDeletionToDealsFlow } = await import("@/lib/syncTemplateToDealsFlow");
+    await syncTemplateDeletionToDealsFlow(id);
     await supabase.from("campaign_templates").delete().eq("id", id);
     if (overwriteId === id) setOverwriteId(null);
     loadSavedTemplates();
@@ -1336,13 +1347,20 @@ export default function AdminEmailBuilder() {
                   className="h-7 text-xs font-semibold border-dashed border-muted-foreground/30 bg-transparent px-2 max-w-[200px] focus:border-primary/50"
                   onBlur={async () => {
                     if (overwriteId && templateName.trim()) {
-                      await supabase.from("campaign_templates").update({ name: templateName.trim() } as any).eq("id", overwriteId);
-                      syncTemplateToDealsFlow({
-                        name: templateName.trim(),
-                        subject: vars.subjectLine || templateName.trim(),
-                        html: finalHtml,
-                        project: vars.projectName || undefined,
-                      });
+                      const { data: updated } = await supabase.from("campaign_templates").update({ name: templateName.trim() } as any).eq("id", overwriteId).select().maybeSingle();
+                      if (updated) {
+                        syncTemplateToDealsFlow({
+                          external_id: (updated as any).slug || (updated as any).id,
+                          name: templateName.trim(),
+                          subject: vars.subjectLine || templateName.trim(),
+                          html: finalHtml,
+                          owner_scope: (updated as any).owner_scope || "team:presale",
+                          owner_agent_slug: (updated as any).owner_agent_slug || null,
+                          created_by_agent_slug: (updated as any).created_by_agent_slug || null,
+                          sync_hash: (updated as any).sync_hash || undefined,
+                          project: vars.projectName || undefined,
+                        });
+                      }
                     }
                   }}
                   onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
