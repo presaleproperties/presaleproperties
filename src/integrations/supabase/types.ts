@@ -5275,7 +5275,13 @@ export type Database = {
       upsert_crm_identity: { Args: { p_data: Json }; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user" | "developer" | "agent"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "developer"
+        | "agent"
+        | "team_member"
       appointment_type: "preview" | "showing"
       automation_step_type:
         | "delay"
@@ -5419,7 +5425,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user", "developer", "agent"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "developer",
+        "agent",
+        "team_member",
+      ],
       appointment_type: ["preview", "showing"],
       automation_step_type: [
         "delay",
