@@ -423,6 +423,29 @@ export default function Login() {
                       </p>
                     </form>
                   </Form>
+
+                  <div className="relative my-5">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-border" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Or sign up with</span>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleGoogleSignIn}
+                    disabled={isLoading}
+                  >
+                    <GoogleIcon className="mr-2 h-4 w-4" />
+                    Continue with Google
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center mt-3">
+                    Google sign-ups also require admin approval before access.
+                  </p>
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -434,3 +457,15 @@ export default function Login() {
     </div>
   );
 }
+
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.66 4.1-5.5 4.1-3.31 0-6-2.74-6-6.1s2.69-6.1 6-6.1c1.88 0 3.14.8 3.86 1.49l2.63-2.54C16.86 3.4 14.66 2.5 12 2.5 6.76 2.5 2.5 6.76 2.5 12s4.26 9.5 9.5 9.5c5.48 0 9.1-3.85 9.1-9.27 0-.62-.07-1.1-.16-1.53H12z"/>
+      <path fill="#4285F4" d="M21.1 12.23c0-.62-.07-1.1-.16-1.53H12v3.9h5.5c-.11.66-.71 1.97-2.04 2.85l-.02.13 2.96 2.29.21.02c1.88-1.74 2.49-4.27 2.49-7.66z"/>
+      <path fill="#FBBC05" d="M6 14.36c-.2-.6-.32-1.24-.32-1.86s.12-1.26.31-1.86l-.01-.13-3-2.33-.1.05A9.46 9.46 0 0 0 2.5 12c0 1.55.37 3.01 1.04 4.31L6 14.36z"/>
+      <path fill="#34A853" d="M12 21.5c2.7 0 4.97-.89 6.62-2.42l-3.16-2.44c-.84.59-1.97 1-3.46 1-2.66 0-4.92-1.74-5.72-4.16l-.12.01-3.05 2.36-.04.11C4.7 19.34 8.07 21.5 12 21.5z"/>
+    </svg>
+  );
+}
+
