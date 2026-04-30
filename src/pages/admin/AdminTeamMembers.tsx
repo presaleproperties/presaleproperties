@@ -197,7 +197,7 @@ export default function AdminTeamMembers() {
   };
 
   const copyCredentials = async () => {
-    const text = `Email: ${credentialsDialog.email}\nTemporary password: ${credentialsDialog.password}\n\nLogin at: ${window.location.origin}/login\n(You'll be asked to set a new password on first sign-in.)`;
+    const text = `Email: ${credentialsDialog.email}\nTemporary password: ${credentialsDialog.password}\n\nLogin at: https://presaleproperties.com/login\n(You'll be asked to set a new password on first sign-in.)`;
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -547,7 +547,7 @@ export default function AdminTeamMembers() {
               <div className="rounded-lg border bg-muted/40 p-4 space-y-2 font-mono text-sm">
                 <div><span className="text-muted-foreground">Email:</span> {credentialsDialog.email}</div>
                 <div><span className="text-muted-foreground">Temp password:</span> {credentialsDialog.password}</div>
-                <div><span className="text-muted-foreground">Login URL:</span> {window.location.origin}/login</div>
+                <div><span className="text-muted-foreground">Login URL:</span> https://presaleproperties.com/login</div>
               </div>
               <div className="flex gap-2">
                 <Button onClick={copyCredentials} className="flex-1">
