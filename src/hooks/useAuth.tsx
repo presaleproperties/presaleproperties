@@ -35,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAdmin = role === "admin";
   const isAgent = role === "agent" || role === "admin";
+  const isTeamMember = role === "team_member" || role === "admin";
 
   const fetchRole = async (userId: string) => {
     const { data } = await supabase
@@ -44,10 +45,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .order("role");
     
     if (data && data.length > 0) {
-      // Prioritize: admin > agent > developer > moderator > user
+      // Prioritize: admin > agent > team_member > developer > moderator > user
       const roles = data.map((r) => r.role as AppRole);
       if (roles.includes("admin")) setRole("admin");
       else if (roles.includes("agent")) setRole("agent");
+      else if (roles.includes("team_member")) setRole("team_member");
       else if (roles.includes("developer")) setRole("developer");
       else if (roles.includes("moderator")) setRole("moderator");
       else setRole("user");
