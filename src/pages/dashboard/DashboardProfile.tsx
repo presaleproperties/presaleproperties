@@ -21,6 +21,8 @@ import {
   AlertCircle,
   XCircle
 } from "lucide-react";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { LoadingState } from "@/components/dashboard/LoadingState";
 
 const profileSchema = z.object({
   full_name: z.string().trim().min(2, "Please enter your full name").max(100),
@@ -320,8 +322,8 @@ export default function DashboardProfile() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="space-y-6 max-w-2xl">
+          <LoadingState variant="rows" count={4} />
         </div>
       </DashboardLayout>
     );
@@ -330,15 +332,16 @@ export default function DashboardProfile() {
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-2xl">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold">Profile Settings</h1>
-          <p className="text-muted-foreground">
-            {teamMember
+        <PageHeader
+          icon={User}
+          title="Profile Settings"
+          description={
+            teamMember
               ? "Your team profile is already set up — update info anytime."
-              : "Manage your account and license information"}
-          </p>
-        </div>
+              : "Manage your account and license information"
+          }
+        />
+
 
         {/* Team-member identity card (pre-filled, read-only summary) */}
         {teamMember && (

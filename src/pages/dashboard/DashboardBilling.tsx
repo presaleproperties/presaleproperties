@@ -12,6 +12,9 @@ import {
   CreditCard,
   Download
 } from "lucide-react";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { LoadingState } from "@/components/dashboard/LoadingState";
+import { EmptyState } from "@/components/dashboard/EmptyState";
 import { format } from "date-fns";
 
 interface Payment {
@@ -83,11 +86,11 @@ export default function DashboardBilling() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold">Billing & Receipts</h1>
-          <p className="text-muted-foreground">View your payment history and download receipts</p>
-        </div>
+        <PageHeader
+          icon={Receipt}
+          title="Billing & Receipts"
+          description="View your payment history and download receipts"
+        />
 
         {/* Summary Cards */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -140,17 +143,14 @@ export default function DashboardBilling() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
+              <LoadingState variant="rows" count={3} />
             ) : payments.length === 0 ? (
-              <div className="text-center py-12">
-                <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No payments yet</h3>
-                <p className="text-muted-foreground">
-                  Your payment history will appear here once you publish a listing.
-                </p>
-              </div>
+              <EmptyState
+                variant="plain"
+                icon={Receipt}
+                title="No payments yet"
+                description="Your payment history will appear here once you publish a listing."
+              />
             ) : (
               <div className="space-y-4">
                 {payments.map((payment) => (
