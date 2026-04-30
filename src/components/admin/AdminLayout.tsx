@@ -95,6 +95,7 @@ const navSections = [
       { href: "/admin/clients",         label: "Clients",        icon: UserRound,    badgeKey: null },
       { href: "/admin/agents",          label: "Agents",         icon: UserCheck,    badgeKey: "agents" as const },
       { href: "/admin/team-members",    label: "Team Members",   icon: Users2,       badgeKey: null },
+      { href: "/admin/team-approvals",  label: "Team Approvals", icon: UserCheck,    badgeKey: null },
       { href: "/admin/developer-accounts", label: "Developer Accounts", icon: Landmark, badgeKey: null },
     ],
   },
