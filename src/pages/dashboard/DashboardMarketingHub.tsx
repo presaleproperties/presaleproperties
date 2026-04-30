@@ -450,10 +450,14 @@ export default function DashboardMarketingHub() {
         </div>
       </section>
 
-      {/* Your Templates */}
+      {/* My Templates */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Your Templates ({filteredAssets.length})</p>
+          <div className="flex items-center gap-2">
+            <User className="h-3.5 w-3.5 text-foreground/70" />
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground">My Templates</p>
+            <Badge variant="secondary" className="text-[9px] h-4 px-1.5 py-0">{filteredAssets.length}</Badge>
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-4">
           <div className="relative flex-1 w-full sm:max-w-xs">
