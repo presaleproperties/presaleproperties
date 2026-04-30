@@ -71,3 +71,27 @@ export async function getCurrentAgentSlug(): Promise<string | null> {
     .maybeSingle();
   return data?.agent_slug ?? null;
 }
+
+/**
+ * Notify DealsFlow CRM that a template was deleted.
+ * Reads slug + scope from the row before delete so the CRM can match it.
+ */
+export async function syncTemplateDeletionToDealsFlow(templateId: string) {
+  try {
+    const { data } = await supabase
+      .from("campaign_templates")
+      .select("slug, owner_scope, owner_agent_slug, name")
+      .eq("id", templateId)
+      .maybeSingle();
+    if (!data) return;
+    syncTemplateToDealsFlow({
+      external_id: (data as any).slug || templateId,
+      name: (data as any).name || "deleted",
+      subject: "",
+      html: "",
+      owner_scope: (data as any).owner_scope || "team:presale",
+      owner_agent_slug: (data as any).owner_agent_slug || null,
+      deleted: true,
+    });
+  } catch { /* swallow */ }
+}
