@@ -23,7 +23,7 @@ import {
 import {
   Mail, Plus, Clock, Trash2, Copy, Tag,
   ChevronRight, Building2, Star, Megaphone, ExternalLink,
-  Search, LayoutGrid, List, Send, Loader2, Users,
+  Search, LayoutGrid, List, Send, Loader2, Users, User,
   Presentation, Share2, PenTool, Image, BarChart3, FileText, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
