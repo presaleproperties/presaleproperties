@@ -9,13 +9,14 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading, isAgent } = useAuth();
+  const { user, loading, isAgent, isTeamMember } = useAuth();
+  const hasAccess = isAgent || isTeamMember;
 
   useEffect(() => {
-    if (!loading && user && !isAgent) {
+    if (!loading && user && !hasAccess) {
       toast.error("You don't have access to the Agent Hub.");
     }
-  }, [loading, user, isAgent]);
+  }, [loading, user, hasAccess]);
 
   if (loading) {
     return (
@@ -29,7 +30,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
-  if (!isAgent) {
+  if (!hasAccess) {
     return <Navigate to="/" replace />;
   }
 
