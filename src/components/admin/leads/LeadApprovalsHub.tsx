@@ -55,6 +55,7 @@ interface LeadRow {
   persona: string | null;
   agent_status: string | null;
   project_id: string | null;
+  project_name: string | null;
   approval_status: ApprovalStatus;
   approved_at: string | null;
   rejection_reason: string | null;
@@ -103,13 +104,16 @@ export function LeadApprovalsHub() {
       const { data, error } = await supabase
         .from("project_leads")
         .select(
-          "id, name, email, phone, message, lead_source, persona, agent_status, project_id, approval_status, approved_at, rejection_reason, realtor_risk_score, realtor_risk_signals, auto_response_sent_at, created_at, utm_source, utm_campaign",
+          "id, name, email, phone, message, lead_source, persona, agent_status, project_id, approval_status, approved_at, rejection_reason, realtor_risk_score, realtor_risk_signals, auto_response_sent_at, created_at, utm_source, utm_campaign, presale_projects(project_name)",
         )
         .eq("approval_status", tab)
         .order("created_at", { ascending: false })
         .limit(200);
       if (error) throw error;
-      return (data ?? []) as unknown as LeadRow[];
+      return ((data ?? []) as any[]).map((row) => ({
+        ...row,
+        project_name: row.presale_projects?.project_name ?? null,
+      })) as LeadRow[];
     },
     refetchInterval: tab === "pending" ? 30_000 : false,
   });
@@ -296,6 +300,11 @@ export function LeadApprovalsHub() {
                       )}
                     </CardTitle>
                     <div className="text-xs text-muted-foreground flex items-center gap-3 flex-wrap">
+                      {lead.project_name && (
+                        <Badge className="bg-primary/10 text-primary border-primary/20 text-[11px] font-medium">
+                          {lead.project_name}
+                        </Badge>
+                      )}
                       <span className="flex items-center gap-1">
                         <Mail className="h-3 w-3" /> {lead.email || "—"}
                       </span>
