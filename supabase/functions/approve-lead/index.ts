@@ -78,7 +78,7 @@ serve(async (req: Request): Promise<Response> => {
 
     const { data: lead, error: leadErr } = await admin
       .from("project_leads")
-      .select("id, project_id, approval_status, email")
+      .select("id, project_id, approval_status, email, name, phone, visitor_id, presale_projects(name)")
       .eq("id", leadId)
       .maybeSingle();
     if (leadErr || !lead) {
