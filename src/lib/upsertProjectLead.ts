@@ -1,11 +1,75 @@
 import { supabase } from "@/integrations/supabase/client";
-import { postToDealsFlow } from "@/lib/postToDealsFlow";
 import { setKnownEmail } from "@/lib/tracking/streamBehavior";
 import {
   leadToProjectLeadRow,
   type CanonicalLead,
 } from "@/lib/contracts/leadContract";
 import { z } from "zod";
+
+/**
+ * Fire-and-forget push to the DealzFlow CRM via the `push-lead-to-crm` edge
+ * function (which forwards to bridge-ingest-lead on the CRM project).
+ */
+function pushLeadToCrm(lead: {
+  id: string;
+  email: string;
+  name?: string | null;
+  phone?: string | null;
+  project_name?: string;
+  lead_source?: string;
+  persona?: string;
+  project_id?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  landing_page?: string;
+  message?: string;
+  visitor_id?: string;
+}) {
+  const [first_name, ...rest] = (lead.name || "").trim().split(/\s+/);
+  const last_name = rest.join(" ") || undefined;
+
+  supabase.functions.invoke("push-lead-to-crm", {
+    body: {
+      lead: {
+        email: lead.email,
+        first_name: first_name || undefined,
+        last_name,
+        phone: lead.phone || undefined,
+        presale_user_id: lead.visitor_id || undefined,
+        source: "presale-website",
+        project: lead.project_name || undefined,
+        projects: lead.project_name ? [lead.project_name] : [],
+        province: "BC",
+        marketing_consent: true,
+        signup_completed_at: new Date().toISOString(),
+        tags: ["PresaleProperties.com", lead.lead_source || "website"].filter(Boolean),
+        metadata: {
+          lead_id: lead.id,
+          lead_source: lead.lead_source,
+          persona: lead.persona,
+          utm_source: lead.utm_source,
+          utm_medium: lead.utm_medium,
+          utm_campaign: lead.utm_campaign,
+          landing_page: lead.landing_page,
+          message: lead.message,
+        },
+      },
+      behavior: {
+        sessions: [],
+        views: [],
+        forms: [{
+          form_type: lead.lead_source || "signup_completed",
+          status: "completed",
+          submitted_at: new Date().toISOString(),
+        }],
+      },
+    },
+  }).then(({ error }) => {
+    if (error) console.warn("[upsertProjectLead] push-lead-to-crm failed:", error);
+    else console.log("[upsertProjectLead] pushed to DealsFlow CRM");
+  }).catch((e) => console.warn("[upsertProjectLead] push-lead-to-crm error:", e));
+}
 
 /**
  * Canonical entry-point — preferred for new code.
