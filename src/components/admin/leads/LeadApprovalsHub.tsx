@@ -112,7 +112,7 @@ export function LeadApprovalsHub() {
       if (error) throw error;
       return ((data ?? []) as any[]).map((row) => ({
         ...row,
-        project_name: row.presale_projects?.project_name ?? null,
+        project_name: row.presale_projects?.name ?? null,
       })) as LeadRow[];
     },
     refetchInterval: tab === "pending" ? 30_000 : false,
