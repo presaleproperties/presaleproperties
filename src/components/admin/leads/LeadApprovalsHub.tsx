@@ -55,6 +55,7 @@ interface LeadRow {
   persona: string | null;
   agent_status: string | null;
   project_id: string | null;
+  project_name: string | null;
   approval_status: ApprovalStatus;
   approved_at: string | null;
   rejection_reason: string | null;
