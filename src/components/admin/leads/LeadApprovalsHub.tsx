@@ -300,6 +300,11 @@ export function LeadApprovalsHub() {
                       )}
                     </CardTitle>
                     <div className="text-xs text-muted-foreground flex items-center gap-3 flex-wrap">
+                      {lead.project_name && (
+                        <Badge className="bg-primary/10 text-primary border-primary/20 text-[11px] font-medium">
+                          {lead.project_name}
+                        </Badge>
+                      )}
                       <span className="flex items-center gap-1">
                         <Mail className="h-3 w-3" /> {lead.email || "—"}
                       </span>
