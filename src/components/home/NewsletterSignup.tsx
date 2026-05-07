@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Bell, Loader2, CheckCircle } from "lucide-react";
 import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
-import { postToDealsFlow } from "@/lib/postToDealsFlow";
+
 
 const CITIES = [
   "Any City",
@@ -125,12 +125,7 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
       // Fire and forget — don't block the success state
       supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 
-      // Fire-and-forget to DealsFlow CRM
-      postToDealsFlow({
-        name: "Newsletter Subscriber",
-        email: data.email,
-        source: `newsletter_${source}`,
-      });
+      // DealsFlow CRM push happens via send-project-lead above
 
       setIsSubmitted(true);
       toast({
