@@ -78,7 +78,7 @@ serve(async (req: Request): Promise<Response> => {
 
     const { data: lead, error: leadErr } = await admin
       .from("project_leads")
-      .select("id, project_id, approval_status, email")
+      .select("id, project_id, approval_status, email, name, phone, visitor_id, presale_projects(name)")
       .eq("id", leadId)
       .maybeSingle();
     if (leadErr || !lead) {
@@ -130,6 +130,55 @@ serve(async (req: Request): Promise<Response> => {
       } catch (err) {
         console.error("[approve-lead] auto-response invoke failed:", err);
       }
+    }
+
+    // ── Push approval/rejection + email activity to DealsFlow CRM ──
+    const projectName = (lead as any).presale_projects?.name ?? null;
+    try {
+      // 1) Push the approval/rejection event
+      await fetch(`${supabaseUrl}/functions/v1/push-activity-to-crm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serviceKey}`,
+        },
+        body: JSON.stringify({
+          event_type: action === "approve" ? "lead.approved" : "lead.rejected",
+          email: lead.email,
+          phone: (lead as any).phone || undefined,
+          source: "presale_properties_admin",
+          payload: {
+            lead_id: leadId,
+            project_name: projectName,
+            approved_by: userData.user.email,
+            ...(action === "reject" && reason ? { rejection_reason: reason } : {}),
+          },
+        }),
+      }).catch((e) => console.error("[approve-lead] CRM approval push failed:", e));
+
+      // 2) If auto-response was sent, push that event too
+      if (autoResponseFired) {
+        await fetch(`${supabaseUrl}/functions/v1/push-activity-to-crm`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${serviceKey}`,
+          },
+          body: JSON.stringify({
+            event_type: "email.auto_response_sent",
+            email: lead.email,
+            phone: (lead as any).phone || undefined,
+            source: "presale_properties_email",
+            payload: {
+              lead_id: leadId,
+              project_name: projectName,
+              template_type: "auto_response",
+            },
+          }),
+        }).catch((e) => console.error("[approve-lead] CRM email push failed:", e));
+      }
+    } catch (crmErr) {
+      console.error("[approve-lead] CRM push error:", crmErr);
     }
 
     return new Response(
