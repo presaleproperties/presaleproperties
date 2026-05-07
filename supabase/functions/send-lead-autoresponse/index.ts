@@ -679,6 +679,31 @@ Deno.serve(async (req) => {
 
     console.log(`[send-lead-autoresponse] Sent ${templateType} email to ${lead.email} for ${project.name}`);
 
+    // Push email-sent activity to DealsFlow CRM timeline
+    try {
+      await fetch(`${supabaseUrl}/functions/v1/push-activity-to-crm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+        },
+        body: JSON.stringify({
+          event_type: "email.auto_response_sent",
+          email: lead.email,
+          source: "presale_properties_email",
+          payload: {
+            lead_id: lead.id,
+            project_name: project.name,
+            subject: subjectLine,
+            template_type: templateType,
+            tracking_id: trackingId,
+          },
+        }),
+      }).catch((e) => console.error("[send-lead-autoresponse] CRM push failed:", e));
+    } catch (crmErr) {
+      console.error("[send-lead-autoresponse] CRM push error:", crmErr);
+    }
+
     // Internal copy to info@ from Zara — for forwarding to the right agent.
     await sendInternalCopy({
       supabase,
