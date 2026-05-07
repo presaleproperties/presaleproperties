@@ -187,14 +187,22 @@ export async function upsertProjectLead(
       .update(updatePayload)
       .eq("id", lead.id);
 
-    // Fire-and-forget to DealsFlow CRM
-    postToDealsFlow({
-      name: cleanName ?? "",
+    // Fire-and-forget to DealsFlow CRM via bridge
+    pushLeadToCrm({
+      id: lead.id,
       email,
-      phone: cleanPhone ?? "",
-      project: leadData.project_name || "",
-      source: leadSource,
-      buyer_type: leadData.persona || "",
+      name: cleanName,
+      phone: cleanPhone,
+      project_name: leadData.project_name || "",
+      lead_source: leadSource,
+      persona: leadData.persona,
+      project_id: leadData.project_id,
+      utm_source: leadData.utm_source,
+      utm_medium: leadData.utm_medium,
+      utm_campaign: leadData.utm_campaign,
+      landing_page: leadData.landing_page,
+      message: cleanMessage,
+      visitor_id: leadData.visitor_id,
     });
 
     return lead.id;
