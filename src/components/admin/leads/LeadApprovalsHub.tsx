@@ -104,7 +104,7 @@ export function LeadApprovalsHub() {
       const { data, error } = await supabase
         .from("project_leads")
         .select(
-          "id, name, email, phone, message, lead_source, persona, agent_status, project_id, approval_status, approved_at, rejection_reason, realtor_risk_score, realtor_risk_signals, auto_response_sent_at, created_at, utm_source, utm_campaign, presale_projects(project_name)",
+          "id, name, email, phone, message, lead_source, persona, agent_status, project_id, approval_status, approved_at, rejection_reason, realtor_risk_score, realtor_risk_signals, auto_response_sent_at, created_at, utm_source, utm_campaign, presale_projects(name)",
         )
         .eq("approval_status", tab)
         .order("created_at", { ascending: false })
@@ -112,7 +112,7 @@ export function LeadApprovalsHub() {
       if (error) throw error;
       return ((data ?? []) as any[]).map((row) => ({
         ...row,
-        project_name: row.presale_projects?.project_name ?? null,
+        project_name: row.presale_projects?.name ?? null,
       })) as LeadRow[];
     },
     refetchInterval: tab === "pending" ? 30_000 : false,
